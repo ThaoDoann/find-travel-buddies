@@ -14,9 +14,9 @@ app.set('views', __dirname + '/views');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
 app.use(session({
-    secret: 'keyboard cat'
-    , resave: false
-    , saveUninitialized: false
+    secret: 'keyboard cat', 
+    resave: false, 
+    saveUninitialized: false
 }))
 
 // Create a middleware to populate an initial template array
@@ -26,7 +26,6 @@ app.use(function (req, res, next) {
     req.TPL = {};
 
     // If session exists, user is logged in
-    // req.TPL.isLoggedIn = !!req.session.user;
     req.TPL.user = req.session.user || null;
 
     next();
@@ -38,6 +37,7 @@ app.use(function (req, res, next) {
 app.use("/home", require("./controllers/homeController"));
 app.use("/login", require("./controllers/loginController"));
 app.use("/register", require("./controllers/registerController"));
+app.use("/user", require("./controllers/userController"));
 
 // Home Route - redirect to /home by default
 app.get("/", function (req, res) {

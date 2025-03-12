@@ -24,7 +24,13 @@ async function authenticateUser(email, password) {
     return await db.all("SELECT * FROM Users WHERE UPPER(email) = UPPER(?) AND password = ?", [email, password]);
 }
 
-// Get user by username
+
+// Get User by id
+async function getUserById(userId) {
+    return await db.get("SELECT * FROM Users WHERE userId = ?", [userId]);
+}
+
+// Get user by email
 async function getUserByEmail(email) {
     return await db.get("SELECT * FROM Users WHERE email = ?", [email]);
 }
@@ -34,9 +40,25 @@ async function createUser(name, email, password, bio) {
     return await db.run("INSERT INTO Users (name, email, password, bio) VALUES (?, ?, ?, ?)", [name, email, password, bio]);
 }
 
+// Update the user's avatar
+async function updateAvatar(userId, avatarBuffer) {
+    let result = await db.run("UPDATE users SET avatar = ? WHERE userId = ?", [avatarBuffer, userId]);
+    return result;
+}
+
+// Update the user's address
+async function updateAddress(userId, address) {
+    let result = await db.run("UPDATE users SET address = ? WHERE userId = ?", [address, userId]);
+    return result;
+}
+
+
 module.exports = {
     getAllUsers,
     authenticateUser,
+    getUserById,
     getUserByEmail,
-    createUser
+    createUser,
+    updateAvatar,
+    updateAddress
 };
