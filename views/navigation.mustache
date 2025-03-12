@@ -1,0 +1,49 @@
+<div class="p-3 mb-3 bg-light border-bottom">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+      <a href="/" class="navbar-brand d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
+        FindTravelBuddy
+      </a>
+
+      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        <li><a href="/search" class="nav-link px-2 link-dark">Find a Buddy</a></li>
+        <li><a href="/my-trips" class="nav-link px-2 link-dark">My Trips</a></li>
+      </ul>
+
+      <div class="text-end">
+
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          {{#user}}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                {{name}}
+
+                {{#user.avatar}}
+                <img src="data:image/png;base64,{{avatar}}" class="rounded-circle ms-2" alt="User Avatar" width="32" height="32">
+                {{/user.avatar}}
+                {{^user.avatar}}
+                <img src="/images/default-avatar.png" class="rounded-circle ms-2" alt="Default Avatar" width="32" height="32">
+                {{/user.avatar}}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+              </ul>
+            </li>
+          {{/user}}
+
+          {{^user}}
+            <li class="nav-item"><a class="btn btn-outline-dark ms-2 px-2" href="/login">Login</a></li>
+            <li class="nav-item"><a class="btn btn-warning ms-2 px-2" href="/register">Sign-up</a></li>
+          {{/user}}
+        </ul>
+      </div>
+
+
+    </div>
+  </div>
+</div>

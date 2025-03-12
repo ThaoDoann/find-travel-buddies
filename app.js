@@ -1,0 +1,57 @@
+const express = require('express');
+const mustacheExpress = require('mustache-express');
+const session = require('express-session');
+
+const app = express();
+const PORT = 3000;
+
+// Set up Mustache as the templating engine
+app.engine('mustache', mustacheExpress());
+app.set('view engine', 'mustache');
+app.set('views', __dirname + '/views');
+
+// Middleware
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static('public'));
+app.use(session({
+    secret: 'keyboard cat'
+    , resave: false
+    , saveUninitialized: false
+}))
+
+// Create a middleware to populate an initial template array
+app.use(function (req, res, next) {
+
+    // reset the template obect to a blank object on each request
+    req.TPL = {};
+
+    // If session exists, user is logged in
+    // req.TPL.isLoggedIn = !!req.session.user;
+    req.TPL.user = req.session.user || null;
+
+    next();
+});
+
+
+// Routes
+
+app.use("/home", require("./controllers/homeController"));
+app.use("/login", require("./controllers/loginController"));
+app.use("/register", require("./controllers/registerController"));
+
+// Home Route - redirect to /home by default
+app.get("/", function (req, res) {
+    res.redirect("/home");
+});
+
+// Catch-all router case
+app.get(/^(.+)$/, function (req, res) {
+    res.sendFile(__dirname + req.params[0]);
+});
+
+
+
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
