@@ -24,7 +24,6 @@ async function authenticateUser(email, password) {
     return await db.all("SELECT * FROM Users WHERE UPPER(email) = UPPER(?) AND password = ?", [email, password]);
 }
 
-
 // Get User by id
 async function getUserById(userId) {
     return await db.get("SELECT * FROM Users WHERE userId = ?", [userId]);
@@ -36,8 +35,8 @@ async function getUserByEmail(email) {
 }
 
 // Register a new user
-async function createUser(name, email, password, bio) {
-    return await db.run("INSERT INTO Users (name, email, password, bio) VALUES (?, ?, ?, ?)", [name, email, password, bio]);
+async function createUser(name, email, password, address, bio) {
+    return await db.run("INSERT INTO Users (name, email, password, address, bio) VALUES (?, ?, ?, ?, ?)", [name, email, password, address, bio]);
 }
 
 // Update the user's avatar
@@ -51,7 +50,6 @@ async function updateAddress(userId, address) {
     let result = await db.run("UPDATE users SET address = ? WHERE userId = ?", [address, userId]);
     return result;
 }
-
 
 module.exports = {
     getAllUsers,

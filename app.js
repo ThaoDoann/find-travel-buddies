@@ -2,6 +2,9 @@ const express = require('express');
 const mustacheExpress = require('mustache-express');
 const session = require('express-session');
 
+const authRoutes = require("./controllers/authController");
+const userRoutes = require("./controllers/userController");
+
 const app = express();
 const PORT = 3000;
 
@@ -33,15 +36,13 @@ app.use(function (req, res, next) {
 
 
 // Routes
+app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
 
-app.use("/home", require("./controllers/homeController"));
-app.use("/login", require("./controllers/loginController"));
-app.use("/register", require("./controllers/registerController"));
-app.use("/user", require("./controllers/userController"));
 
 // Home Route - redirect to /home by default
 app.get("/", function (req, res) {
-    res.redirect("/home");
+    res.redirect("/auth/login");
 });
 
 // Catch-all router case

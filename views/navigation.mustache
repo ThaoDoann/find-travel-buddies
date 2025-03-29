@@ -14,10 +14,10 @@
 
         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           {{#user}}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                {{name}}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              {{name}}
 
                 {{#user.avatar}}
                 <img src="data:image/png;base64,{{avatar}}" class="rounded-circle ms-2" alt="User Avatar" width="32" height="32">
@@ -37,13 +37,13 @@
           {{/user}}
 
           {{^user}}
-            <li class="nav-item"><a class="btn btn-outline-dark ms-2 px-2" href="/login">Login</a></li>
-            <li class="nav-item"><a class="btn btn-warning ms-2 px-2" href="/register">Sign-up</a></li>
+          <li class="nav-item"><a class="btn btn-outline-dark ms-2 px-2" href="/auth/login">Login</a></li>
+          <li class="nav-item"><a class="btn btn-warning ms-2 px-2" href="/auth/register">Sign-up</a></li>
           {{/user}}
         </ul>
       </div>
-
-
     </div>
   </div>
 </div>
+
+<main>
