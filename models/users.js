@@ -19,6 +19,101 @@ async function getAllUsers() {
     return await db.all("SELECT * FROM Users");
 }
 
+// Get user by id with connection status
+async function getUserById(userId) {
+    const user = await db.get(`
+        SELECT u.*, 
+            CASE 
+                WHEN c.status IS NULL THEN 'Not Connected'
+                ELSE c.status
+            END as connectionStatus
+        FROM Users u
+        LEFT JOIN Connections c ON 
+            (c.requester_id = ? AND c.recipient_id = u.userId) OR
+            (c.requester_id = u.userId AND c.recipient_id = ?)
+        WHERE u.userId = ?
+    `, [currentUserId, currentUserId, userId]);
+
+    if (user) {
+        user.canConnect = user.connectionStatus === 'Not Connected';
+    }
+
+    return user;
+}
+
+// Search users
+async function searchUsers(query) {
+    return await db.all(`
+        SELECT userId, userName, email, address, avatar, bio
+        FROM Users
+        WHERE userName LIKE ? OR email LIKE ? OR address LIKE ? OR bio LIKE ?
+        ORDER BY userName ASC
+    `, [`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`]);
+}
+
+// // Get user by id with connection status
+// async function getUserByIdWithConnection(userId, currentUserId) {
+//     const user = await db.get(`
+//         SELECT u.*, 
+//             CASE 
+//                 WHEN c.status IS NULL THEN 'Not Connected'
+//                 ELSE c.status
+//             END as connectionStatus
+//         FROM Users u
+//         LEFT JOIN Connections c ON 
+//             (c.requester_id = ? AND c.recipient_id = u.userId) OR
+//             (c.requester_id = u.userId AND c.recipient_id = ?)
+//         WHERE u.userId = ?
+//     `, [currentUserId, currentUserId, userId]);
+
+//     if (user) {
+//         user.canConnect = user.connectionStatus === 'Not Connected';
+//     }
+
+//     return user;
+// }
+
+// Create connection request
+async function createConnectionRequest(requesterId, recipientId) {
+    return await db.run(`
+        INSERT INTO Connections (requester_id, recipient_id, status)
+        VALUES (?, ?, 'Pending')
+    `, [requesterId, recipientId]);
+}
+
+// Update connection status
+async function updateConnectionStatus(connectionId, status) {
+    return await db.run(`
+        UPDATE Connections 
+        SET status = ? 
+        WHERE id = ?
+    `, [status, connectionId]);
+}
+
+// Get user's connections
+async function getUserConnections(userId) {
+    return await db.all(`
+        SELECT u.*, c.status as connectionStatus, c.id as connectionId
+        FROM Users u
+        JOIN Connections c ON 
+            (c.requester_id = ? AND c.recipient_id = u.userId) OR
+            (c.requester_id = u.userId AND c.recipient_id = ?)
+        WHERE c.status = 'Accepted'
+        ORDER BY u.userName ASC
+    `, [userId, userId]);
+}
+
+// Get pending connection requests
+async function getPendingConnectionRequests(userId) {
+    return await db.all(`
+        SELECT u.*, c.id as connectionId
+        FROM Users u
+        JOIN Connections c ON c.requester_id = u.userId
+        WHERE c.recipient_id = ? AND c.status = 'Pending'
+        ORDER BY c.created_at DESC
+    `, [userId]);
+}
+
 // Authenticate user (login)
 async function authenticateUser(email, password) {
     return await db.all("SELECT * FROM Users WHERE UPPER(email) = UPPER(?) AND password = ?", [email, password]);
@@ -36,26 +131,26 @@ async function getUserByEmail(email) {
 
 // Register a new user
 async function createUser(userName, email, password, address, bio) {
-    return await db.run("INSERT INTO Users (userName, email, password, address, bio) VALUES (?, ?, ?, ?, ?)", [userName, email, password, address, bio]);
+    return await db.run("INSERT INTO Users (userName, email, password, address, bio) VALUES (?, ?, ?, ?, ?)", 
+        [userName, email, password, address, bio]);
 }
-
 
 // Update user information 
 async function updateUser(userId, userName, email, password, address, bio, avatarBuffer) {
-    // If avatar is provided, update it in the database
     if (avatarBuffer) {
-        const result = await db.query('UPDATE users SET userName = ?, email = ?, address = ?, bio = ?, avatar = ? WHERE userId = ?',
-            [userName, email, password, address, bio, avatarBuffer, userId]);
+        return await db.run(`
+            UPDATE users 
+            SET userName = ?, email = ?, address = ?, bio = ?, avatar = ? 
+            WHERE userId = ?
+        `, [userName, email, password, address, bio, avatarBuffer, userId]);
     } else {
-        // If no avatar is uploaded, update the rest of the information
-        const result = await db.query('UPDATE users SET userName = ?, email = ?, address = ?, bio = ? WHERE userId = ?',
-            [userName, email, password, address, bio, userId]);
+        return await db.run(`
+            UPDATE users 
+            SET userName = ?, email = ?, address = ?, bio = ? 
+            WHERE userId = ?
+        `, [userName, email, password, address, bio, userId]);
     }
-
-    // Return the updated user with the new avatar (in memory or previous avatar)
-    return getUserById(userId);
 }
-
 
 // // Update the user's avatar
 // async function updateAvatar(userId, avatarBuffer) {
@@ -71,6 +166,11 @@ async function updateUser(userId, userName, email, password, address, bio, avata
 
 module.exports = {
     getAllUsers,
+    searchUsers,
+    createConnectionRequest,
+    updateConnectionStatus,
+    getUserConnections,
+    getPendingConnectionRequests,
     authenticateUser,
     getUserById,
     getUserByEmail,

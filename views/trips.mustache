@@ -77,87 +77,191 @@
                 </div>
             </div>
 
+            <!-- Public/Private Toggle -->
+            <div class="mb-3">
+                <label class="form-label">Trip Visibility:</label>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="isPublic" name="isPublic" checked>
+                    <label class="form-check-label" for="isPublic">Public Trip</label>
+                    <small class="form-text text-muted d-block">Public trips are visible to all users. Private trips are only visible to you.</small>
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-primary mt-3" id="submitTripBtn">Create Trip</button>
             <button type="button" class="btn btn-secondary mt-3" id="cancelTripBtn">Cancel</button>
         </form>
     </div>
 
-
-
-
-    <!-- Existing Groups -->
+    <!-- Available Group Trips Section -->
     <div class="mt-4">
         <h4>Available Group Trips</h4>
-
         {{#trips.length}}
-        <ul class="list-group">
             {{#trips}}
-            <li class="list-group-item bg-light my-1">
+                <div class="card mb-3">
+                    <div class="card-header py-3">
+                        <div class="d-flex align-items-center">
+                            <!-- Status Badge -->
+                            <span class="badge me-3
+                                {{#isPlanned}}bg-primary{{/isPlanned}}
+                                {{#isCompleted}}bg-success{{/isCompleted}}
+                                {{#isCanceled}}bg-danger{{/isCanceled}}">
+                                {{status}}
+                            </span>
 
-                <form action="/trips/{{tripId}}" method="GET">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <!-- Trip Name and Location -->
-                            <h5 class="mb-1">{{tripName}} - <span class="text-primary">{{location}}</span></h5>
-                            <span class="badge bg-info">{{tripType}}</span>
-                            <!-- Trip Status Badge -->
-                            <span class="badge 
-                                        {{#isPlanned}}bg-primary{{/isPlanned}}
-                                        {{#isCompleted}}bg-success{{/isCompleted}}
-                                        {{#isCanceled}}bg-danger{{/isCanceled}}">
-                                {{status}}</span>
+                            <!-- Trip Info -->
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{tripName}}</h5>
+                                <p class="mb-0">
+                                    <small class="text-muted">
+                                        <i class="bi bi-geo-alt"></i> {{location}}
+                                        <span class="mx-2">|</span>
+                                        <span class="badge bg-info">{{tripType}}</span>
+                                    </small>
+                                </p>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex align-items-center gap-2">
+                                <a href="/trips/{{tripId}}" class="btn btn-success btn-sm">
+                                    Manage Trip
+                                </a>
+                                <button class="btn btn-light btn-sm details-btn" 
+                                        data-bs-toggle="collapse" 
+                                        data-bs-target="#trip-{{tripId}}" 
+                                        aria-expanded="false">
+                                    <i class="bi bi-chevron-down"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div>
-                            <button class="btn btn-sm details-btn" data-bs-toggle="collapse"
-                                data-bs-target="#trip-{{tripId}}" aria-expanded="false">
-                                <!-- <span>Details</span> -->
+                    </div>
+
+                    <!-- Collapsible Content -->
+                    <div class="collapse" id="trip-{{tripId}}">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <i class="bi bi-calendar"></i> 
+                                        <strong>Dates:</strong> 
+                                        <span class="ms-2">{{startDate}} - {{endDate}}</span>
+                                    </p>
+                                    <p class="mb-2">
+                                        <i class="bi bi-currency-dollar"></i>
+                                        <strong>Budget:</strong> 
+                                        <span class="ms-2">${{budget}}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <i class="bi bi-person-plus"></i>
+                                        <strong>Companions:</strong> 
+                                        <span class="ms-2">{{companionsCount}}/{{maxCompanions}}</span>
+                                    </p>
+                                    <p class="mb-2">
+                                        <i class="bi bi-globe"></i>
+                                        <strong>Visibility:</strong> 
+                                        <span class="ms-2">{{#isPublic}}Public{{/isPublic}}{{^isPublic}}Private{{/isPublic}}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{/trips}}
+        {{/trips.length}}
+    </div>
+
+    <!-- My Trip Requests Section -->
+    <div class="mt-4">
+        <h4>My Trip Requests</h4>
+        {{#sentRequests}}
+            <div class="card mb-3">
+                <div class="card-header py-3">
+                    <div class="d-flex align-items-center">
+                        <!-- Status Badge -->
+                        <span class="badge me-3
+                            {{#isPending}}bg-warning{{/isPending}}
+                            {{#isApproved}}bg-success{{/isApproved}}
+                            {{#isRejected}}bg-danger{{/isRejected}}">
+                            {{status}}
+                        </span>
+
+                        <!-- Trip Info -->
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">{{tripName}}</h5>
+                            <p class="mb-0">
+                                <small class="text-muted">
+                                    <i class="bi bi-person"></i> 
+                                    <a href="/user/{{ownerId}}/profile" class="text-decoration-none user-link">
+                                        {{ownerName}}
+                                    </a>
+                                    <span class="mx-2">|</span>
+                                    <i class="bi bi-geo-alt"></i> {{location}}
+                                    <span class="mx-2">|</span>
+                                    <i class="bi bi-currency-dollar"></i> {{budget}}
+                                </small>
+                            </p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="/trips/{{tripId}}" class="btn btn-success btn-sm">
+                                View Trip
+                            </a>
+                            {{#isPending}}
+                                <form method="POST" action="/trips/request/{{requestId}}/cancel">
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        Cancel Request
+                                    </button>
+                                </form>
+                            {{/isPending}}
+                            <button class="btn btn-light btn-sm details-btn" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#tripRequest{{requestId}}" 
+                                    aria-expanded="false">
                                 <i class="bi bi-chevron-down"></i>
                             </button>
-                            <button class="btn btn-sm btn-success"
-                                onclick="viewTripDetails({{tripId}})">Details</button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="collapse mt-2" id="trip-{{tripId}}">
-            
-                        <!-- Start Date with Calendar Icon -->
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="bi bi-calendar"></i>
-                                <span class="mx-2"><strong>Start Date: </strong>{{startDate}}</span>
+                <!-- Collapsible Content -->
+                <div class="collapse" id="tripRequest{{requestId}}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <i class="bi bi-calendar"></i> 
+                                    <strong>Dates:</strong> 
+                                    <span class="ms-2">{{startDate}} - {{endDate}}</span>
+                                </p>
+                                <p class="mb-2">
+                                    <i class="bi bi-tag"></i> 
+                                    <strong>Trip Type:</strong> 
+                                    <span class="ms-2">{{tripType}}</span>
+                                </p>
                             </div>
-
-                            <!-- End Date with Calendar Icon -->
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="bi bi-calendar-x"></i>
-                                <span class="mx-2"><strong>End Date: </strong>{{endDate}}</span>
-                            </div>
-
-                            <!-- Budget with Dollar Icon -->
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="bi bi-currency-dollar"></i>
-                                <span class="mx-2"><strong>Budget: </strong>${{budget}}</span>
-                            </div>
-
-                            <!-- Max Companions with People Icon -->
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="bi bi-person-plus"></i>
-                                <span class="mx-2"><strong>Companions:
-                                    </strong>{{companionsCount}}/{{maxCompanions}}</span>
+                            <div class="col-md-6">
+                                {{#requestMessage}}
+                                    <div class="mb-2">
+                                        <p class="mb-1">
+                                            <i class="bi bi-chat-dots"></i>
+                                            <strong>Your Message:</strong>
+                                        </p>
+                                        <p class="mb-0 ms-4 fst-italic text-muted">
+                                            "{{requestMessage}}"
+                                        </p>
+                                    </div>
+                                {{/requestMessage}}
                             </div>
                         </div>
-
                     </div>
-                </form>
-            </li>
-            {{/trips}}
-        </ul>
-        {{/trips.length}}
-
-        {{^trips.length}}
-        <p>No trips found.</p>
-        {{/trips.length}}
-
+                </div>
+            </div>
+        {{/sentRequests}}
+        {{^sentRequests}}
+            <p class="text-muted">No trip requests sent.</p>
+        {{/sentRequests}}
     </div>
 </div>
 
@@ -180,12 +284,16 @@
     });
 
     document.querySelectorAll('.details-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            let icon = this.querySelector('i');
-            let isExpanded = this.getAttribute('aria-expanded') === 'true';
-
-            icon.classList.toggle('bi-chevron-down', !isExpanded);
-            icon.classList.toggle('bi-chevron-up', isExpanded);
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const icon = this.querySelector('i');
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            
+            if (isExpanded) {
+                icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+            } else {
+                icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+            }
         });
     });
 
@@ -236,5 +344,50 @@
     })();
 
 </script>
+
+{{! <style>
+/* Update the details button styles */
+.details-btn {
+    padding: 0.25rem 0.5rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+.details-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.details-btn i {
+    transition: transform 0.2s ease-in-out;
+}
+
+.details-btn[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+/* User link styles */
+.user-link {
+    color: #212529;
+    transition: all 0.2s ease-in-out;
+}
+
+.user-link:hover {
+    color: #0d6efd;
+    text-decoration: underline !important;
+}
+
+.user-link .bi {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.user-link:hover .bi {
+    opacity: 1;
+}
+
+/* Card header hover effect */
+.card-header {
+    background-color: #f8f9fa;
+}
+</style> }}
 
 {{> footer}}

@@ -1,49 +1,104 @@
-<div class="p-3 mb-3 bg-light border-bottom">
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom p-3">
   <div class="container">
-    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-      <a href="/" class="navbar-brand d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
-        FindTravelBuddy
-      </a>
+    <a href="/" class="navbar-brand d-flex align-items-center">
+      FindTravelBuddy
+    </a>
 
-      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li><a href="/search" class="nav-link px-2 link-dark">Find a Buddy</a></li>
-        <li><a href="/trips" class="nav-link px-2 link-dark">My Trips</a></li>
+    <!-- Hamburger button for mobile -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+            aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a href="/search" class="nav-link">Find a Buddy</a>
+        </li>
       </ul>
 
-      <div class="text-end">
-
-        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-          {{#user}}
+      <!-- User section -->
+      <ul class="navbar-nav ms-auto">
+        {{#user}}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              {{userName}}
-
-                {{#user.avatar}}
-                <img src="data:image/png;base64,{{avatar}}" class="rounded-circle ms-2" alt="User Avatar" width="32" height="32">
-                {{/user.avatar}}
-                {{^user.avatar}}
-                <img src="/images/default-avatar.png" class="rounded-circle ms-2" alt="Default Avatar" width="32" height="32">
-                {{/user.avatar}}
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="/user/profile">Profile</a></li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item text-danger" href="/auth/logout">Logout</a></li>
-              </ul>
-            </li>
-          {{/user}}
-
-          {{^user}}
-          <li class="nav-item"><a class="btn btn-outline-dark ms-2 px-2" href="/auth/login">Login</a></li>
-          <li class="nav-item"><a class="btn btn-warning ms-2 px-2" href="/auth/register">Sign-up</a></li>
-          {{/user}}
-        </ul>
-      </div>
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" 
+               id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="me-2">{{userName}}</span>
+              {{#user.avatar}}
+                <img src="data:image/png;base64,{{avatar}}" 
+                     class="rounded-circle" alt="User Avatar" 
+                     width="32" height="32">
+              {{/user.avatar}}
+              {{^user.avatar}}
+                <img src="/images/default-avatar.png" 
+                     class="rounded-circle" alt="Default Avatar" 
+                     width="32" height="32">
+              {{/user.avatar}}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/user/profile">
+                <i class="bi bi-person me-2"></i>Profile
+              </a></li>
+              <li><a class="dropdown-item" href="/trips">
+                <i class="bi bi-compass me-2"></i>My Trips
+              </a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="/auth/logout">
+                <i class="bi bi-box-arrow-right me-2"></i>Logout
+              </a></li>
+            </ul>
+          </li>
+        {{/user}}
+        {{^user}}
+          <li class="nav-item">
+            <a class="btn btn-outline-dark me-2" href="/auth/login">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-warning" href="/auth/register">Sign-up</a>
+          </li>
+        {{/user}}
+      </ul>
     </div>
   </div>
-</div>
+</nav>
 
 <main>
+
+<style>
+/* Custom styles for responsive navigation */
+@media (max-width: 991.98px) {
+  .navbar-nav .dropdown-menu {
+    border: none;
+    padding: 0.5rem 1rem;
+    background-color: transparent;
+  }
+  
+  .navbar-nav .dropdown-item {
+    padding: 0.5rem 0;
+  }
+  
+  .dropdown-divider {
+    border-color: rgba(0,0,0,.1);
+  }
+  
+  .navbar .btn {
+    width: 100%;
+    margin: 0.25rem 0;
+  }
+}
+
+/* Improve dropdown hover effect */
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Add icons hover effect */
+.dropdown-item i {
+  transition: transform 0.2s;
+}
+
+.dropdown-item:hover i {
+  transform: translateX(2px);
+}
+</style>

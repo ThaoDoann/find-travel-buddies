@@ -19,46 +19,47 @@
             <h2>Profile</h2>
 
             <!-- Profile Avatar Section -->
-            <div class="profile-avatar">
-                {{#user.avatar}}
-                <img src="data:image/png;base64,{{avatar}}" alt="Profile Avatar" id="avatarImage"
-                    class="profile-avatar-img" width="100" height="100">
-                {{/user.avatar}}
-                {{^user.avatar}}
-                <img src="/images/default-avatar.png" alt="Profile Avatar" id="avatarImage" class="profile-avatar-img"
-                    width="100" height="100">
-                {{/user.avatar}}
-                <button id="editAvatarBtn" class="btn btn-secondary ms-2" onclick="editAvatar()">Edit</button>
+            <form id="profileForm" method="POST" enctype="multipart/form-data" action="/user/save-profile">
+                <div class="profile-avatar">
+                    {{#user.avatar}}
+                    <img src="data:image/png;base64,{{avatar}}" alt="Profile Avatar" id="avatarImage"
+                        class="profile-avatar-img" width="100" height="100">
+                    {{/user.avatar}}
+                    {{^user.avatar}}
+                    <img src="/images/default-avatar.png" alt="Profile Avatar" id="avatarImage" class="profile-avatar-img"
+                        width="100" height="100">
+                    {{/user.avatar}}
 
-                <!-- Avatar Edit Input -->
-                <input type="file" id="avatarInput" style="display: none;" onchange="updateAvatar()">
-            </div>
-
-
-            <!-- User Info Section (Initially Read-Only) -->
-            <div class="user-info">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" value="{{user.name}}" readonly class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" value="{{user.email}}" readonly class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="address">Address</label>
-                    <input type="text" id="address" value="{{user.address}}" readonly class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="bio">Bio</label>
-                    <textarea id="bio" readonly class="form-control">{{user.bio}}</textarea>
+                    <div class="mb-3 form-group" id="avatarInputContainer" style="display: none;">
+                        <label for="avatar">Change Avatar</label>
+                        <input type="file" id="avatarInput" name="avatar" class="form-control">
+                    </div>
                 </div>
 
-                <button id="editProfileBtn" class="btn btn-primary" onclick="editProfile()">Edit Profile</button>
-                <button id="saveProfileBtn" class="btn btn-success" style="display: none;" onclick="saveProfile()">Save
-                    Changes</button>
-            </div>
 
+                <!-- User Info Section (Initially Read-Only) -->
+                <div class="user-info">
+                    <div class="mb-3 form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" value="{{user.userName}}" readonly class="form-control">
+                    </div>
+                    <div class="mb-3 form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" value="{{user.email}}" readonly class="form-control">
+                    </div>
+                    <div class="mb-3 form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" value="{{user.address}}" readonly class="form-control">
+                    </div>
+                    <div class="mb-3 form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" readonly class="form-control">{{user.bio}}</textarea>
+                    </div>
+
+                    <button id="editProfileBtn" class="btn btn-primary" onclick="editProfile()">Edit Profile</button>
+                    <button id="saveProfileBtn" class="btn btn-success" style="display: none;" onclick="saveProfile()">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -66,11 +67,88 @@
 
 
 
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
 
 
+    
+    function editProfile() {
+        const formElements = document.querySelectorAll("#profileForm input, #profileForm textarea, #profileForm select");
+
+        formElements.forEach(element => {
+            element.removeAttribute("readonly");  // Make fields editable
+        });
+
+        // Show the avatar input field
+        document.getElementById("avatarInputContainer").style.display = "inline-block";
+
+        // Hide the "Edit Profile" button and show the "Save Changes" button
+        document.getElementById("editProfileBtn").style.display = "none";
+        document.getElementById("saveProfileBtn").style.display = "inline-block";
+    }
 
 
+    // Handle form submission to update only changed fields
+    document.getElementById("profileForm").addEventListener("submit", function(event) {
+        event.preventDefault();  // Prevent default form submission
+
+        const formData = new FormData(this);
+        const originalValues = {
+            name: "{{user.name}}",
+            email: "{{user.email}}",
+            address: "{{user.address}}",
+            bio: "{{user.bio}}",
+            avatar: "{{user.avatar}}" // Store current avatar base64
+        };
+
+        // Check if any field has been modified and add it to the form data
+        const updatedFields = {};
+
+        // Compare form values with original values
+        if (formData.get('name') !== originalValues.name) updatedFields.name = formData.get('name');
+        if (formData.get('email') !== originalValues.email) updatedFields.email = formData.get('email');
+        if (formData.get('address') !== originalValues.address) updatedFields.address = formData.get('address');
+        if (formData.get('bio') !== originalValues.bio) updatedFields.bio = formData.get('bio');
+        
+        // Check if the avatar is updated
+        if (formData.get('avatar')) {
+            updatedFields.avatar = formData.get('avatar');
+        }
+
+        if (Object.keys(updatedFields).length > 0) {
+            // Send the updated fields via AJAX or form submission
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/save-profile", true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    alert("Profile updated successfully!");
+                    location.reload();  // Reload the page after successful update
+                }
+            };
+
+            // Add updated fields to the request payload
+            const updatedFormData = new FormData();
+            for (const [key, value] of Object.entries(updatedFields)) {
+                updatedFormData.append(key, value);
+            }
+            
+            xhr.send(updatedFormData);
+        }
+    });
 
 
+    //function updateAvatar() {
+    //    const avatarInput = document.getElementById('avatarInput').files[0];
+    //    if (avatarInput) {
+    //       const reader = new FileReader();
+    //        reader.onload = function (e) {
+    //            document.getElementById('avatarImage').src = e.target.result;
+    //        };
+    //        reader.readAsDataURL(avatarInput);
+     //   }
+    //} 
 
+});
+</script>
 {{> footer}}
