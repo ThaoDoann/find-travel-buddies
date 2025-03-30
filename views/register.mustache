@@ -12,24 +12,24 @@
             {{/error}}
 
             <form id="registrationForm" action="/auth/register" method="POST">
-                <div class="mb-3 form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
+                <div class="form-group mb-3">
+                    <label for="userName">Full Name</label>
+                    <input type="text" class="form-control" id="userName" name="userName" required>
                 </div>
-                <div class="mb-3 form-group">
+                <div class="form-group"mb-3>
                     <label for="email">Email</label>
                     <input type="text" class="form-control" id="email" name="email" required>
                 </div>
-                <div class="mb-3 form-group">
+                <div class="form-group"mb-3>
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="password" name="password" required>
                 </div>
-                <div class="mb-3 form-group">
+                <div class="form-group"mb-3>
                     <label for="address">Address</label>
                     <input type="text" class="form-control" id="address" name="address" required>
                     <label id="addressError" class="form-check-label is-invalid" for="address">Address </label>
                 </div>
-                <div class="mb-3 form-group">
+                <div class="form-group"mb-3>
                     <label for="bio">Short Bio</label>
                     <textarea class="form-control" id="bio" name="bio"></textarea>
                 </div>
@@ -37,7 +37,7 @@
             </form>
 
             <hr>
-            <p>Already have an account? <a href="/login">Login here</a></p>
+            <p>Already have an account? <a href="/auth/login">Login here</a></p>
         </div>
     </div>
 </div>

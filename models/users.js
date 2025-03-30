@@ -39,17 +39,35 @@ async function createUser(name, email, password, address, bio) {
     return await db.run("INSERT INTO Users (name, email, password, address, bio) VALUES (?, ?, ?, ?, ?)", [name, email, password, address, bio]);
 }
 
-// Update the user's avatar
-async function updateAvatar(userId, avatarBuffer) {
-    let result = await db.run("UPDATE users SET avatar = ? WHERE userId = ?", [avatarBuffer, userId]);
-    return result;
+
+// Update user information 
+async function updateUser(userId, name, email, password, address, bio, avatarBuffer) {
+    // If avatar is provided, update it in the database
+    if (avatarBuffer) {
+        const result = await db.query('UPDATE users SET name = ?, email = ?, address = ?, bio = ?, avatar = ? WHERE userId = ?',
+            [name, email, password, address, bio, avatarBuffer, userId]);
+    } else {
+        // If no avatar is uploaded, update the rest of the information
+        const result = await db.query('UPDATE users SET name = ?, email = ?, address = ?, bio = ? WHERE userId = ?',
+            [name, email, password, address, bio, userId]);
+    }
+
+    // Return the updated user with the new avatar (in memory or previous avatar)
+    return getUserById(userId);
 }
 
-// Update the user's address
-async function updateAddress(userId, address) {
-    let result = await db.run("UPDATE users SET address = ? WHERE userId = ?", [address, userId]);
-    return result;
-}
+
+// // Update the user's avatar
+// async function updateAvatar(userId, avatarBuffer) {
+//     let result = await db.run("UPDATE users SET avatar = ? WHERE userId = ?", [avatarBuffer, userId]);
+//     return result;
+// }
+
+// // Update the user's address
+// async function updateAddress(userId, address) {
+//     let result = await db.run("UPDATE users SET address = ? WHERE userId = ?", [address, userId]);
+//     return result;
+// }
 
 module.exports = {
     getAllUsers,
@@ -57,6 +75,7 @@ module.exports = {
     getUserById,
     getUserByEmail,
     createUser,
-    updateAvatar,
-    updateAddress
+    updateUser
+    // updateAvatar,
+    // updateAddress
 };

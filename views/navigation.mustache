@@ -7,7 +7,7 @@
 
       <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
         <li><a href="/search" class="nav-link px-2 link-dark">Find a Buddy</a></li>
-        <li><a href="/my-trips" class="nav-link px-2 link-dark">My Trips</a></li>
+        <li><a href="/trips" class="nav-link px-2 link-dark">My Trips</a></li>
       </ul>
 
       <div class="text-end">
@@ -17,7 +17,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              {{name}}
+              {{userName}}
 
                 {{#user.avatar}}
                 <img src="data:image/png;base64,{{avatar}}" class="rounded-circle ms-2" alt="User Avatar" width="32" height="32">
@@ -31,7 +31,7 @@
                 <li>
                   <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+                <li><a class="dropdown-item text-danger" href="/auth/logout">Logout</a></li>
               </ul>
             </li>
           {{/user}}

@@ -1,9 +1,11 @@
 const express = require('express');
 const mustacheExpress = require('mustache-express');
 const session = require('express-session');
+require('dotenv').config();
 
 const authRoutes = require("./controllers/authController");
 const userRoutes = require("./controllers/userController");
+const tripRoutes = require("./controllers/tripController");
 
 const app = express();
 const PORT = 3000;
@@ -30,6 +32,7 @@ app.use(function (req, res, next) {
 
     // If session exists, user is logged in
     req.TPL.user = req.session.user || null;
+    req.TPL.google_api_key = process.env.GOOGLE_MAPS_API_KEY;
 
     next();
 });
@@ -38,7 +41,7 @@ app.use(function (req, res, next) {
 // Routes
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
-
+app.use("/trips", tripRoutes);
 
 // Home Route - redirect to /home by default
 app.get("/", function (req, res) {

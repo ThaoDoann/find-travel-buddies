@@ -1,0 +1,59 @@
+{{> header}}
+{{> navigation}}
+
+<div class="container mt-4">
+    <h1 class="mb-3">{{trip.name}}</h1>
+    <div class="card">
+        <div class="card-body">
+            <p><strong>Location:</strong> {{trip.location}}</p>
+            <p><strong>Start Date:</strong> {{trip.startDate}}</p>
+            <p><strong>End Date:</strong> {{trip.endDate}}</p>
+            <p><strong>Budget:</strong> ${{trip.budget}}</p>
+            <p><strong>Description:</strong> {{trip.description}}</p>
+            <p><strong>Current Companions:</strong> {{trip.companionsCount}} / {{trip.maxCompanions}}</p>
+        </div>
+    </div>
+
+    <h2 class="mt-4">Trip Requests</h2>
+    <ul class="list-group">
+        {{#tripRequests}}
+            <li class="list-group-item d-flex align-items-center justify-content-between">
+                <!-- Avatar -->
+                <div class="d-flex align-items-center">
+                    {{#avatar}}
+                        <img src="data:image/png;base64,{{avatar}}" class="rounded-circle" alt="User Avatar" width="40" height="40">
+                    {{/avatar}}
+                    {{^avatar}}
+                        <img src="/images/default-avatar.png" class="rounded-circle" alt="Default Avatar" width="40" height="40">
+                    {{/avatar}}
+                    <!-- User Name -->
+                    <span class="ms-2">{{userName}}</span>
+                </div>
+
+                <!-- Status -->
+                <div class="ms-3">
+                    <small>{{status}}</small>
+                </div>
+
+                <!-- Approval and Rejection Buttons (only if pending) -->
+               
+
+                {{#isPending}}
+                    <form method="post" action="/trips/{{tripId}}/{{requestId}}/action">
+                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm ms-2">Approve</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm ms-2">Reject</button>
+                    </form>
+                {{/isPending}}
+            </li>
+        {{/tripRequests}}
+    </ul>
+
+
+    <div class="mt-4 text-center">
+        <!-- Back to All Trips Button -->
+        <a href="/trips" class="btn btn-primary">Back to All Trips</a>
+    </div>
+
+</div>
+
+{{> footer}}

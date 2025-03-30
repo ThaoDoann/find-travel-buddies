@@ -1,0 +1,240 @@
+{{> header}}
+{{> navigation}}
+
+
+<div class="container mt-5">
+    <h2>Plan Your Group Trip</h2>
+
+    <!-- Add New Trip Button -->
+    <button class="btn btn-primary mt-3" id="addNewTripBtn">Add New Trip</button>
+
+    <!-- New Trip Form (Initially hidden) -->
+    <div id="newTripForm" class="card card-body bg-light mt-4" style="display: none;">
+        <form id="createTripForm" action="/trips/create" method="POST" novalidate>
+            <!-- Trip Name -->
+            <div class="mb-3">
+                <label for="tripName" class="form-label">Trip Name:</label>
+                <input type="text" class="form-control" id="tripName" name="tripName" required>
+                <div class="invalid-feedback">
+                    Please provide a trip name.
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="mb-3">
+                <label for="location" class="form-label">Location:</label>
+                <input type="text" class="form-control" id="location" name="location" required>
+                <div class="invalid-feedback">Location is required.</div>
+            </div>
+
+            <!-- Start Date and End Date -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="startDate" class="form-label">Start Date:</label>
+                    <input type="date" class="form-control" id="startDate" name="startDate" required>
+                    <div class="invalid-feedback">Start date must be today or later.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="endDate" class="form-label">End Date:</label>
+                    <input type="date" class="form-control" id="endDate" name="endDate" required>
+                    <div class="invalid-feedback">End date must be after start date.</div>
+                </div>
+            </div>
+
+            <!-- Trip Type (Select Dropdown) -->
+            <div class="mb-3">
+                <label for="tripType" class="form-label">Trip Type:</label>
+                <select class="form-select" id="tripType" name="tripTypeId" required>
+                    {{#tripTypes}}
+                    <option value="{{id}}">{{name}}</option>
+                    {{/tripTypes}}
+                </select>
+                <div class="invalid-feedback">
+                    Please select a trip type.
+                </div>
+            </div>
+
+            <!-- Budget -->
+            <div class="mb-3">
+                <label for="budget" class="form-label">Budget:</label>
+                <input type="number" class="form-control" id="budget" name="budget" step="0.01" min="0" required>
+                <div class="invalid-feedback">Budget should be a valid number.</div>
+            </div>
+
+            <!-- Max Companions -->
+            <div class="mb-3">
+                <label for="maxCompanions" class="form-label">Max Companions:</label>
+                <input type="number" class="form-control" id="maxCompanions" name="maxCompanions" min="1" required>
+                <div class="invalid-feedback">Enter a valid number of companions.</div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+                <label for="tripDescription" class="form-label">Trip Description:</label>
+                <textarea class="form-control" id="tripDescription" name="description" rows="3" required></textarea>
+                <div class="invalid-feedback">
+                    Please provide a description.
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3" id="submitTripBtn">Create Trip</button>
+            <button type="button" class="btn btn-secondary mt-3" id="cancelTripBtn">Cancel</button>
+        </form>
+    </div>
+
+
+
+
+    <!-- Existing Groups -->
+    <div class="mt-4">
+        <h4>Available Group Trips</h4>
+
+        {{#trips.length}}
+        <ul class="list-group">
+            {{#trips}}
+            <li class="list-group-item bg-light my-1">
+
+                <form action="/trips/{{tripId}}" method="GET">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <!-- Trip Name and Location -->
+                            <h5 class="mb-1">{{tripName}} - <span class="text-primary">{{location}}</span></h5>
+                            <span class="badge bg-info">{{tripType}}</span>
+                            <!-- Trip Status Badge -->
+                            <span class="badge 
+                                        {{#isPlanned}}bg-primary{{/isPlanned}}
+                                        {{#isCompleted}}bg-success{{/isCompleted}}
+                                        {{#isCanceled}}bg-danger{{/isCanceled}}">
+                                {{status}}</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm details-btn" data-bs-toggle="collapse"
+                                data-bs-target="#trip-{{tripId}}" aria-expanded="false">
+                                <!-- <span>Details</span> -->
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                            <button class="btn btn-sm btn-success"
+                                onclick="viewTripDetails({{tripId}})">Details</button>
+                        </div>
+                    </div>
+
+                    <div class="collapse mt-2" id="trip-{{tripId}}">
+            
+                        <!-- Start Date with Calendar Icon -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-calendar"></i>
+                                <span class="mx-2"><strong>Start Date: </strong>{{startDate}}</span>
+                            </div>
+
+                            <!-- End Date with Calendar Icon -->
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-calendar-x"></i>
+                                <span class="mx-2"><strong>End Date: </strong>{{endDate}}</span>
+                            </div>
+
+                            <!-- Budget with Dollar Icon -->
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-currency-dollar"></i>
+                                <span class="mx-2"><strong>Budget: </strong>${{budget}}</span>
+                            </div>
+
+                            <!-- Max Companions with People Icon -->
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-person-plus"></i>
+                                <span class="mx-2"><strong>Companions:
+                                    </strong>{{companionsCount}}/{{maxCompanions}}</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </li>
+            {{/trips}}
+        </ul>
+        {{/trips.length}}
+
+        {{^trips.length}}
+        <p>No trips found.</p>
+        {{/trips.length}}
+
+    </div>
+</div>
+
+
+<script>
+    document.getElementById("addNewTripBtn").addEventListener("click", function () {
+        document.getElementById("newTripForm").style.display = "block";
+        document.getElementById("addNewTripBtn").style.display = "none";
+    });
+
+    document.getElementById("cancelTripBtn").addEventListener("click", function (event) {
+        event.preventDefault(); // Stop any default behavior
+
+        // Hide the form
+        document.getElementById("newTripForm").style.display = "none";
+        document.getElementById("addNewTripBtn").style.display = "block";
+
+        // Clear all form inputs
+        document.getElementById("createTripForm").reset();
+    });
+
+    document.querySelectorAll('.details-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            let icon = this.querySelector('i');
+            let isExpanded = this.getAttribute('aria-expanded') === 'true';
+
+            icon.classList.toggle('bi-chevron-down', !isExpanded);
+            icon.classList.toggle('bi-chevron-up', isExpanded);
+        });
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("newTripForm");
+        const startDateInput = document.getElementById("startDate");
+        const endDateInput = document.getElementById("endDate");
+
+        const today = new Date().toISOString().split("T")[0];
+        startDateInput.setAttribute("min", today);
+        endDateInput.setAttribute("min", today);
+
+        form.addEventListener("submit", function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            console.log(startDate, endDate, (endDate < startDate))
+
+            if (endDate < startDate) {
+                endDateInput.classList.add("is-invalid");
+                event.preventDefault();
+            } else {
+                endDateInput.classList.remove("is-invalid");
+            }
+
+            form.classList.add("was-validated");
+        });
+    });
+
+
+    // Bootstrap 5 custom form validation
+    (function () {
+        'use strict'
+        var form = document.getElementById('createTripForm');
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    })();
+
+</script>
+
+{{> footer}}

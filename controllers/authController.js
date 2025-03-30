@@ -3,11 +3,10 @@ var router = express.Router()
 const session = require('express-session');
 const bcrypt = require("bcrypt");
 
-require('dotenv').config();
-
 const UsersModel = require('../models/users.js');
+const isAuthenticated = require('../middleware/auth.js');
 
-//{ google_api_key: process.env.GOOGLE_MAPS_API_KEY }
+
 
 // Displays the Login page
 router.get("/login", async function (req, res) {
@@ -24,20 +23,27 @@ router.post('/login', async function (req, res) {
   const { email, password } = req.body;
 
   const user = await UsersModel.getUserByEmail(email);
-  if (!user || !user.password || user.password !== password) {
-    req.session.error = "Invalid credentials.";
+
+  if (user == null) { //TODO
+    req.session.error = "The user doesn't exist. Please register.";
     return res.redirect("/auth/login");
   }
-  req.session.user = user;
-  res.redirect("/search");
+  else {
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
+      req.session.error = "Invalid credentials. Please try again";
+      return res.redirect("/auth/login");
+    }
+
+    req.session.user = user;
+    res.redirect("/user/profile");
+  }
 });
 
 
 // Displays the registration page
 router.get("/register", (req, res) => {
-  console.log(process.env.GOOGLE_MAPS_API_KEY)
-
-  req.TPL.google_api_key = process.env.GOOGLE_MAPS_API_KEY;
+  
   // if we had an error during form submit, display it, clear it from session
   req.TPL.error = req.session.login_error;
   req.session.error = "";
@@ -49,32 +55,31 @@ router.get("/register", (req, res) => {
 
 // Handles user registration
 router.post('/register', async (req, res) => {
-    console.log(req.body)
 
-    const { name, email, password, address, bio } = req.body;
+    const { userName, email, password, address, bio } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+    console.log(hashedPassword)
+
     // Check if the email already exists
     const existingUser = await UsersModel.getUserByEmail(email);
     if (existingUser) {
-      console.log("aleady exist")
         req.TPL.error = "Email already exists. Please choose another one.";
-        //return res.redirect('/auth/register');
         res.render('register', req.TPL);
         
     } else {
       // Insert new user into the database
-      const result = await UsersModel.createUser(name, email, hashedPassword, address, bio);
+      
+      const result = await UsersModel.createUser(userName, email, hashedPassword, address, bio);
+      
       if (result && result.changes > 0) {
           // If registration is successful, redirect to the user's homepage
 
           const user = await UsersModel.getUserById(result.lastID);
-          req.session.user = user[0];
-          res.redirect('/home');
+          req.session.user = user;
+          res.redirect('/user/profile');
       } else {
           // If registration fails, re-render the login page with an error message
           req.TPL.error = "An error occur while trying to register";
-          // res.render('/auth/register', req.TPL);
           return res.redirect('register');
       }
     }
@@ -82,9 +87,13 @@ router.post('/register', async (req, res) => {
 
 
 
-router.get('/logout', (req, res) => {
-  req.logout(() => {
-      res.redirect('/login');
+router.get('/logout', isAuthenticated, async (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+        console.error("Error destroying session:", err);
+        return res.status(500).send("Error logging out.");
+    }
+    res.redirect('/auth/login');
   });
 });
 
