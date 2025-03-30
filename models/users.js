@@ -35,21 +35,21 @@ async function getUserByEmail(email) {
 }
 
 // Register a new user
-async function createUser(name, email, password, address, bio) {
-    return await db.run("INSERT INTO Users (name, email, password, address, bio) VALUES (?, ?, ?, ?, ?)", [name, email, password, address, bio]);
+async function createUser(userName, email, password, address, bio) {
+    return await db.run("INSERT INTO Users (userName, email, password, address, bio) VALUES (?, ?, ?, ?, ?)", [userName, email, password, address, bio]);
 }
 
 
 // Update user information 
-async function updateUser(userId, name, email, password, address, bio, avatarBuffer) {
+async function updateUser(userId, userName, email, password, address, bio, avatarBuffer) {
     // If avatar is provided, update it in the database
     if (avatarBuffer) {
-        const result = await db.query('UPDATE users SET name = ?, email = ?, address = ?, bio = ?, avatar = ? WHERE userId = ?',
-            [name, email, password, address, bio, avatarBuffer, userId]);
+        const result = await db.query('UPDATE users SET userName = ?, email = ?, address = ?, bio = ?, avatar = ? WHERE userId = ?',
+            [userName, email, password, address, bio, avatarBuffer, userId]);
     } else {
         // If no avatar is uploaded, update the rest of the information
-        const result = await db.query('UPDATE users SET name = ?, email = ?, address = ?, bio = ? WHERE userId = ?',
-            [name, email, password, address, bio, userId]);
+        const result = await db.query('UPDATE users SET userName = ?, email = ?, address = ?, bio = ? WHERE userId = ?',
+            [userName, email, password, address, bio, userId]);
     }
 
     // Return the updated user with the new avatar (in memory or previous avatar)
