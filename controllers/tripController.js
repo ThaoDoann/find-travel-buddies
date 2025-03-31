@@ -28,7 +28,6 @@ router.get("/", isAuthenticated, async function (req, res) {
             request.isPending = request.status == 'Pending';
             request.isApproved = request.status == 'Approved';
             request.isRejected = request.status === 'Rejected';
-            console.log("request", request);
         });
         req.TPL.trips = trips;
         req.TPL.tripTypes = tripTypes;
@@ -177,8 +176,6 @@ router.post('/:tripId/update', async function(req, res) {
 // Request to join a trip
 router.post('/join', isAuthenticated, async (req, res) => {
     try {
-
-        console.log("request to join: req.body", req.body);
         const userId = req.session.user.userId;
         const { tripId, message } = req.body;
 

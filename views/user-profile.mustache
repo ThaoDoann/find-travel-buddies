@@ -215,7 +215,6 @@ function setTripId(tripId) {
 document.getElementById('submitJoinRequestBtn').addEventListener('click', function() {
     const message = document.getElementById('requestMessage').value;
 
-    console.log(message, currentTripId);
     fetch('/trips/join', {
         method: 'POST',
         headers: {
