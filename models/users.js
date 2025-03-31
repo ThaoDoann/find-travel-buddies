@@ -78,7 +78,6 @@ async function createUser(userName, email, password, address, bio) {
 
 // Update user information 
 async function updateUser(userId, userName, email, address, bio) {
-    console.log(userId, userName, email, address, bio);
     if (email == null && address == null) {
         return await db.run(`UPDATE users SET userName = ?, bio = ? WHERE userId = ?`, [userName, email, address, bio, userId]);
     } else {

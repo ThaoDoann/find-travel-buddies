@@ -24,7 +24,7 @@ router.get("/", isAuthenticated, async function (req, res) {
 
         
         tripRequests.forEach(request => {
-            // console.log("request.status", request.status);
+            console.log("request.status", request.status);
             request.isPending = request.status == 'Pending';
             request.isApproved = request.status == 'Approved';
             request.isRejected = request.status === 'Rejected';
@@ -144,14 +144,6 @@ router.post('/:tripId/update', async function(req, res) {
 
         // First verify that this user owns the trip
         const trip = await TripModel.getTripById(tripId);
-        if (!trip || trip.userId !== userId) {
-            return res.status(403).send('Unauthorized');
-        }
-
-        // Check if maxCompanions is not less than current companions count
-        if (parseInt(maxCompanions) < trip.companionsCount) {
-            return res.status(400).send('Max companions cannot be less than current companions count');
-        }
 
         await TripModel.updateTrip(
             tripId,

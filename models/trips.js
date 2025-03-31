@@ -202,10 +202,22 @@ async function getTripRequest(tripId, userId) {
     `, [tripId, userId]);
 }
 
+
 // Get user's sent trip requests
 async function getUserTripRequests(userId) {
+    // return await db.all(`
+    //     SELECT tr.*, t.*, u.userName, 
+    //            tr.message as requestMessage,
+    //            tr.requestDate
+    //     FROM TripRequests tr
+    //     JOIN Trips t ON tr.tripId = t.tripId
+    //     JOIN Users u ON t.userId = u.userId
+    //     WHERE tr.userId = ?
+    //     ORDER BY tr.requestDate DESC
+    // `, [userId]);
+
     return await db.all(`
-        SELECT tr.*, t.*, u.userName, 
+        SELECT tr.*, t.tripName, t.location, t.startDate, t.endDate, t.budget, t.maxCompanions, u.userName, 
                tr.message as requestMessage,
                tr.requestDate
         FROM TripRequests tr

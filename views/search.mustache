@@ -1,0 +1,132 @@
+{{> header}}
+{{> navigation}}
+
+<div class="container mt-5">
+    <h2>Search Trips and Users</h2>
+
+    <!-- Search Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="/search" method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="searchQuery" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="searchQuery" name="q" value="{{searchQuery}}" placeholder="Search trips or users...">
+                </div>
+                <div class="col-md-3">
+                    <label for="tripType" class="form-label">Trip Type</label>
+                    <select class="form-select" id="tripType" name="tripType">
+                        <option value="">All Types</option>
+                        {{#tripTypes}}
+                        <option value="{{id}}" {{#selected}}selected{{/selected}}>{{name}}</option>
+                        {{/tripTypes}}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="location" class="form-label">Location</label>
+                    <input type="text" class="form-control" id="location" name="location" value="{{location}}" placeholder="Enter location...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    {{#hasResults}}
+    <div class="row">
+        <!-- Trips Section -->
+        <div class="col-md-8">
+            <h3>Trips</h3>
+            {{> trip-card}}
+        </div>
+
+        <!-- Users Section -->
+        <div class="col-md-4">
+            <h3>Users</h3>
+            {{#users}}
+            {{> user-profile}}
+            {{/users}}
+        </div>
+    </div>
+    {{/hasResults}}
+
+    {{^hasResults}}
+    <div class="alert alert-info">
+        No results found. Try adjusting your search criteria.
+    </div>
+    {{/hasResults}}
+</div>
+
+<script>
+function connectWithUser(userId) {
+    // Implement connection logic
+    console.log('Connecting with user:', userId);
+}
+</script>
+
+{{> footer}}
+{{> header}}
+{{> navigation}}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Find a Buddy</h2>
+
+    <div class="mb-4">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search for trips or users..." onkeyup="filterTrips()">
+    </div>
+
+    <div id="tripList" class="row">
+        {{#trips}}
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{tripName}}</h5>
+                        <p class="card-text">
+                            <i class="bi bi-geo-alt"></i> <strong>Destination:</strong> {{location}}
+                        </p>
+                        <p class="card-text"><strong>Start Date:</strong> {{startDate}} <strong>End Date:</strong> {{endDate}}</p>
+                        <div class="d-flex align-items-center">
+                            <img src="{{owner.avatar || '/images/default-avatar.png'}}" alt="User Avatar" class="rounded-circle me-2" width="30" height="30">
+                            <p class="mb-0"><strong>Organizer:</strong> <a href="/user/{{owner.userId}}/profile">{{owner.userName}}</a></p>
+                        </div>
+                        <button class="btn btn-primary" onclick="sendJoinRequest({{tripId}})">Request to Join</button>
+                        <button class="btn btn-danger" onclick="cancelRequest({{tripId}})">Cancel Request</button>
+                    </div>
+                </div>
+            </div>
+        {{/trips}}
+        {{^trips}}
+            <div class="col-12">
+                <div class="alert alert-warning">No trips found.</div>
+            </div>
+        {{/trips}}
+    </div>
+</div>
+
+<script>
+function filterTrips() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const tripList = document.getElementById('tripList');
+    const items = tripList.getElementsByClassName('card');
+
+    for (let i = 0; i < items.length; i++) {
+        const tripName = items[i].getElementsByClassName('card-title')[0];
+        const locationText = items[i].getElementsByClassName('card-text')[0]; // Destination paragraph
+        if (tripName || locationText) {
+            const tripText = tripName.textContent || tripName.innerText;
+            const locationTextContent = locationText.textContent || locationText.innerText;
+            if (tripText.toLowerCase().indexOf(filter) > -1 || locationTextContent.toLowerCase().indexOf(filter) > -1) {
+                items[i].style.display = "";
+            } else {
+                items[i].style.display = "none";
+            }
+        }
+    }
+}
+
+</script>
+
+{{> footer}}

@@ -198,31 +198,6 @@
         </div>
     {{/trip.isOrganizer}}
 
-    {{^trip.isOrganizer}}
-        <!-- Join Request Status - Only visible to non-owners -->
-        <div class="mt-3">
-            {{#trip.userRequestStatus}}
-                <div class="alert 
-                    {{#trip.isPending}}alert-warning{{/trip.isPending}}
-                    {{#trip.isApproved}}alert-success{{/trip.isApproved}}
-                    {{#trip.isRejected}}alert-danger{{/trip.isRejected}}">
-                    Your request status: <strong>{{trip.userRequestStatus}}</strong>
-                </div>
-            {{/trip.userRequestStatus}}
-            {{^trip.userRequestStatus}}
-                {{#trip.hasRoomForCompanions}}
-                    <button class="btn btn-primary" onclick="showJoinTripModal({{trip.tripId}})">
-                        Request to Join
-                    </button>
-                {{/trip.hasRoomForCompanions}}
-                {{^trip.hasRoomForCompanions}}
-                    <button class="btn btn-secondary" disabled>
-                        Trip Full
-                    </button>
-                {{/trip.hasRoomForCompanions}}
-            {{/trip.userRequestStatus}}
-        </div>
-    {{/trip.isOrganizer}}
 </div>
 
 <script>

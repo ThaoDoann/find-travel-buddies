@@ -1,0 +1,5 @@
+1) Run the application:
+npm i
+node initdb.js
+node app.js
+

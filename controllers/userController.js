@@ -56,7 +56,6 @@ router.get('/:userId/profile', isAuthenticated, async (req, res) => {
 
             trip.isPlanned = trip.status === 'Planned';
             trip.isRequestSent = userRequestTripIds.includes(trip.tripId); 
-            console.log("trip", trip);
             // if (currentUserId !== requestedUserId) {  // Only check requests for other users' trips
             //     const request = await TripsModel.getTripRequest(trip.tripId, currentUserId);
             //     if (request) {
