@@ -2,6 +2,7 @@ const express = require('express');
 const mustacheExpress = require('mustache-express');
 const session = require('express-session');
 require('dotenv').config();
+const multer = require('multer');
 
 const authRoutes = require("./controllers/authController");
 const userRoutes = require("./controllers/userController");
@@ -37,6 +38,11 @@ app.use(function (req, res, next) {
     next();
 });
 
+const upload = multer({
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+});
 
 // Routes
 app.use("/auth", authRoutes);
@@ -45,7 +51,13 @@ app.use("/trips", tripRoutes);
 
 // Home Route - redirect to /home by default
 app.get("/", function (req, res) {
-    res.redirect("/auth/login");
+    if (req.session.user) {
+        // If user is logged in, redirect to their profile
+        res.redirect(`/user/${req.session.user.userId}/profile`);
+    } else {
+        // If not logged in, redirect to login
+        res.redirect("/auth/login");
+    }
 });
 
 // Catch-all router case

@@ -8,30 +8,31 @@ const UsersModel = require('../models/users.js');
 const isAuthenticated = require('../middleware/auth.js');
 
 
-// Displays the login page
 router.get("/", isAuthenticated, async function (req, res) {
     try {
         const userId = req.session.user.userId;
         const trips = await TripModel.getTripsByUserId(userId);
         const tripTypes = await TripModel.getAllTripTypes();
-        const sentRequests = await TripModel.getUserTripRequests(userId);
+        const tripRequests = await TripModel.getUserTripRequests(userId);
         
         trips.forEach(trip => {
+            // console.log("trips.status", trip.status);
             trip.isPlanned = trip.status === 'Planned';
             trip.isCompleted = trip.status === 'Completed';
             trip.isCanceled = trip.status === 'Canceled';
         });
-        
-        sentRequests.forEach(request => {
-            request.isPending = request.status === 'Pending';
-            request.isApproved = request.status === 'Approved';
-            request.isRejected = request.status === 'Rejected';
-        });
-        console.log(sentRequests);
 
+        
+        tripRequests.forEach(request => {
+            // console.log("request.status", request.status);
+            request.isPending = request.status == 'Pending';
+            request.isApproved = request.status == 'Approved';
+            request.isRejected = request.status === 'Rejected';
+            console.log("request", request);
+        });
         req.TPL.trips = trips;
         req.TPL.tripTypes = tripTypes;
-        req.TPL.sentRequests = sentRequests;
+        req.TPL.tripRequests = tripRequests;
         
         res.render("trips", req.TPL);
     } catch (error) {
@@ -76,30 +77,30 @@ router.get('/:tripId', isAuthenticated, async function(req, res) {
         const tripId = req.params.tripId;
         const userId = req.session.user.userId;
         const trip = await TripModel.getTripById(tripId);
-        
-        if (!trip) {
-            return res.status(404).send('Trip not found');
-        }
+
 
         // Add permission flags
-        trip.isOwner = trip.userId === userId;
+        trip.isOrganizer = trip.userId === userId;
         trip.hasRoomForCompanions = trip.companionsCount < trip.maxCompanions;
 
         // Get user's request status for this trip if they're not the owner
-        if (!trip.isOwner) {
-            const userRequest = await TripModel.getTripRequest(tripId, userId);
-            if (userRequest) {
-                trip.userRequestStatus = userRequest.status;
-                trip.isPending = userRequest.status === 'Pending';
-                trip.isApproved = userRequest.status === 'Approved';
-                trip.isRejected = userRequest.status === 'Rejected';
-            }
-        }
+        
 
-        // Only fetch requests if user is the owner
+        // if (!trip.isOrganizer) {
+        //     const userRequest = await TripModel.getTripRequest(tripId, userId);
+        //     if (userRequest) {
+        //         trip.userRequestStatus = userRequest.status;
+        //         trip.isPending = userRequest.status === 'Pending';
+        //         trip.isApproved = userRequest.status === 'Approved';
+        //         trip.isRejected = userRequest.status === 'Rejected';
+        //     }
+        // }
+
+        // Only fetch requests if user is the organizer
         let tripRequests = [];
-        if (trip.isOwner) {
+        if (trip.isOrganizer) {
             tripRequests = await TripModel.getTripRequestsInfo(tripId);
+            
             tripRequests.forEach(request => {
                 request.isPending = request.status === 'Pending';
                 request.isApproved = request.status === 'Approved';
@@ -211,7 +212,7 @@ router.post('/join', isAuthenticated, async (req, res) => {
         await TripModel.createTripRequest(userId, tripId, message);
 
         // Redirect back to the user's profile page
-        res.redirect(`/user/profile/${trip.userId}`);
+        res.redirect(`/user/${trip.userId}/profile`);
     } catch (error) {
         console.error('Error requesting to join trip:', error);
         res.status(500).send('Error requesting to join trip');
@@ -232,6 +233,31 @@ router.post('/request/:requestId/cancel', isAuthenticated, async (req, res) => {
     } catch (error) {
         console.error('Error canceling trip request:', error);
         res.status(500).send('Error canceling trip request');
+    }
+});
+
+
+// In the route that handles trip details
+router.get('/manage/:tripId', isAuthenticated, async (req, res) => {
+    try {
+        const tripId = req.params.tripId;
+        const trip = await TripModel.getTripById(tripId);
+        
+        // Get trip requests with requester information including avatars
+        const requests = await TripModel.getTripRequestsWithUsers(tripId);
+        for (let request of requests) {
+            const requester = await UsersModel.getUserById(request.userId);
+            request.requester = requester;
+            request.requestDate = request.requestDate; // Ensure request date is included
+        }
+
+        req.TPL.trip = trip;
+        req.TPL.tripRequests = requests; // Pass requests to the template
+        
+        res.render('manage-trip', req.TPL);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Error loading trip details');
     }
 });
 

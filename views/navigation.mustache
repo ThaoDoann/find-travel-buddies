@@ -25,19 +25,19 @@
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" 
                id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="me-2">{{userName}}</span>
-              {{#user.avatar}}
-                <img src="data:image/png;base64,{{avatar}}" 
+              {{#avatar}}
+                <img src="{{avatar}}" 
                      class="rounded-circle" alt="User Avatar" 
                      width="32" height="32">
-              {{/user.avatar}}
-              {{^user.avatar}}
+              {{/avatar}}
+              {{^avatar}}
                 <img src="/images/default-avatar.png" 
                      class="rounded-circle" alt="Default Avatar" 
                      width="32" height="32">
-              {{/user.avatar}}
+              {{/avatar}}
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/user/profile">
+              <li><a class="dropdown-item" href="/user/{{user.userId}}/profile">
                 <i class="bi bi-person me-2"></i>Profile
               </a></li>
               <li><a class="dropdown-item" href="/trips">

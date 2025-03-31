@@ -19,25 +19,37 @@ router.get("/login", async function (req, res) {
   res.render("login", req.TPL);
 });
 
-router.post('/login', async function (req, res) {
-  const { email, password } = req.body;
+router.post("/login", async function (req, res) {
+    try {
+        const { email, password } = req.body;
+        
+        // Get user from database by email
+        const user = await UsersModel.authenticateUser(email);
 
-  const user = await UsersModel.getUserByEmail(email);
+        if (user) {
+            // Compare the provided password with the stored hash
+            const passwordMatch = await bcrypt.compare(password, user.password);
 
-  if (user == null) { //TODO
-    req.session.error = "The user doesn't exist. Please register.";
-    return res.redirect("/auth/login");
-  }
-  else {
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-    if (!isPasswordMatch) {
-      req.session.error = "Invalid credentials. Please try again";
-      return res.redirect("/auth/login");
+            if (passwordMatch) {
+                req.session.user = user;  // Store user info in session
+                
+                // Redirect to user profile page
+                res.redirect(`/user/${user.userId}/profile`);
+            } else {
+                // Password doesn't match
+                req.TPL.error = "Invalid email or password";
+                res.render("login", req.TPL);
+            }
+        } else {
+            // User not found
+            req.TPL.error = "User does not exist";
+            res.render("login", req.TPL);
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        req.TPL.error = "An error occurred during login";
+        res.render("login", req.TPL);
     }
-
-    req.session.user = user;
-    res.redirect("/user/profile");
-  }
 });
 
 
@@ -73,10 +85,10 @@ router.post('/register', async (req, res) => {
       
       if (result && result.changes > 0) {
           // If registration is successful, redirect to the user's homepage
-
-          const user = await UsersModel.getUserById(result.lastID);
-          req.session.user = user;
-          res.redirect('/user/profile');
+            const userId = result.lastID;
+            const user = await UsersModel.getUserById(userId);
+            req.session.user = user;
+            res.redirect(`/user/${userId}/profile`);
       } else {
           // If registration fails, re-render the login page with an error message
           req.TPL.error = "An error occur while trying to register";

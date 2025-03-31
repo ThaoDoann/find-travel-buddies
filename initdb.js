@@ -13,34 +13,36 @@ db.serialize(function () {
     db.run("DROP TABLE IF EXISTS Chat");
 
     // Create tables
-    db.run(`CREATE TABLE users (
+    db.run(`CREATE TABLE Users (
         userId INTEGER PRIMARY KEY AUTOINCREMENT,
         userName TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         address TEXT,
-        avatar BLOB,
+        avatar TEXT,
         bio TEXT
     )`);
 
     // Insert Dummy data (no avatars for now)
     db.run(`INSERT INTO Users (userId, userName, email, password, address, avatar, bio) VALUES 
-        (1, 'Alice Johnson', 'alice@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Mountain View, CA', NULL, 'Love traveling!'),
-        (2, 'Bob Smith', 'bob@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Toronto, ON', NULL, 'Adventure seeker.'),
-        (3, 'Charlie Brown', 'charlie@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Etobicoke, ON', NULL, 'Looking for travel buddies!'),
-        (4, 'David Wilson', 'david@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'York, ON', NULL, 'Mountain climber.'),
-        (5, 'Emily Davis', 'emily@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Cupertino, CA', NULL, 'Food enthusiast.'),
-        (6, 'Frank Green', 'frank@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Seattle, WA', NULL, 'Hiking lover.'),
-        (7, 'Grace Lee', 'grace@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Boston, MA', NULL, 'Cultural explorer.'),
-        (8, 'Henry White', 'henry@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Chicago, IL', NULL, 'Backpacking pro.'),
-        (9, 'Ivy Adams', 'ivy@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Vancouver, BC', NULL, 'Skiing enthusiast.'),
-        (10, 'Jack Miller', 'jack@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Austin, TX', NULL, 'Music festival lover.'),
-        (11, 'Sarah Chen', 'sarah@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'San Francisco, CA', NULL, 'Photography enthusiast.'),
-        (12, 'Mike Johnson', 'mike@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Denver, CO', NULL, 'Rock climbing expert.'),
-        (13, 'Lisa Wong', 'lisa@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'New York, NY', NULL, 'City explorer.'),
-        (14, 'Tom Anderson', 'tom@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Miami, FL', NULL, 'Beach lover.'),
-        (15, 'Rachel Kim', 'rachel@example.com', '$2b$10$znxyRZDopPa4ZQM67v8wAu3hxDNJACPtJSyDDoM3SQWwcBXSbZ8.m', 'Seoul, SK', NULL, 'K-pop fan.')
+        (1, 'Alice Johnson', 'alice@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Mountain View, CA', NULL, 'Love traveling!'),
+        (2, 'Bob Smith', 'bob@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Toronto, ON', NULL, 'Adventure seeker.'),
+        (3, 'Charlie Brown', 'charlie@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Etobicoke, ON', NULL, 'Looking for travel buddies!'),
+        (4, 'David Wilson', 'david@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'York, ON', NULL, 'Mountain climber.'),
+        (5, 'Emily Davis', 'emily@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Cupertino, CA', NULL, 'Food enthusiast.'),
+        (6, 'Frank Green', 'frank@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Seattle, WA', NULL, 'Hiking lover.'),
+        (7, 'Grace Lee', 'grace@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Boston, MA', NULL, 'Cultural explorer.'),
+        (8, 'Henry White', 'henry@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Chicago, IL', NULL, 'Backpacking pro.'),
+        (9, 'Ivy Adams', 'ivy@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Vancouver, BC', NULL, 'Skiing enthusiast.'),
+        (10, 'Jack Miller', 'jack@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Austin, TX', NULL, 'Music festival lover.'),
+        (11, 'Sarah Chen', 'sarah@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'San Francisco, CA', NULL, 'Photography enthusiast.'),
+        (12, 'Mike Johnson', 'mike@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Denver, CO', NULL, 'Rock climbing expert.'),
+        (13, 'Lisa Wong', 'lisa@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'New York, NY', NULL, 'City explorer.'),
+        (14, 'Tom Anderson', 'tom@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Miami, FL', NULL, 'Beach lover.'),
+        (15, 'Rachel Kim', 'rachel@example.com', '$2b$10$AbEGIzU8qSYwM1qHi6FqJe4xFC1uxbzm90eq0SV2fm5zmm39br5eW', 'Seoul, SK', NULL, 'K-pop fan.')
     `);
+        // password: 1Asdfghj
+
 
     // Create TripTypes table
     db.run(`CREATE TABLE TripTypes (

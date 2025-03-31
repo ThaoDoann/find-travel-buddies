@@ -17,7 +17,7 @@ init();
 // Get all trips by user ID, sorted by status and date
 async function getTripsByUserId(userId) {
     return await db.all(`
-        SELECT t.*, tt.name as tripType
+        SELECT t.*, tt.*
         FROM Trips t
         JOIN TripTypes tt ON t.tripTypeId = tt.id
         WHERE t.userId = ?
@@ -83,13 +83,8 @@ async function searchTrips(query, tripType, location) {
 // Get public trips by user ID
 async function getPublicTripsByUserId(userId) {
     return await db.all(`
-        SELECT t.*, tt.name as tripType,
-               (SELECT COUNT(*) 
-                FROM TripRequests tr 
-                WHERE tr.tripId = t.tripId 
-                AND tr.status = 'Approved') as companionsCount
-        FROM Trips t
-        JOIN TripTypes tt ON t.tripTypeId = tt.id
+        SELECT t.*, tt.name 
+        FROM Trips t JOIN TripTypes tt ON t.tripTypeId = tt.id
         WHERE t.userId = ? AND t.isPublic = 1
         ORDER BY 
             CASE t.status
@@ -102,6 +97,24 @@ async function getPublicTripsByUserId(userId) {
     `, [userId]);
 }
 
+// Get public trips by user ID
+async function getTripsByUserId(userId) {
+    return await db.all(`
+        SELECT t.*, tt.* FROM Trips t
+        JOIN TripTypes tt ON t.tripTypeId = tt.id
+        WHERE t.userId = ?
+        ORDER BY 
+            CASE t.status
+                WHEN 'Planned' THEN 1
+                WHEN 'Completed' THEN 2
+                WHEN 'Canceled' THEN 3
+                ELSE 4
+            END,
+            t.startDate ASC
+    `, [userId]);
+}
+
+
 // Create a new trip
 async function addPlannedTrip(userId, tripName, tripTypeId, startDate, endDate, location, budget, description, maxCompanions, isPublic) {
     return await db.run(`
@@ -113,7 +126,7 @@ async function addPlannedTrip(userId, tripName, tripTypeId, startDate, endDate, 
 // Get trip by ID with owner info
 async function getTripById(tripId) {
     return await db.get(`
-        SELECT t.*, tt.name as tripType, u.userName as ownerName, u.userId as ownerId
+        SELECT t.*, tt.name as tripType, u.userName as ownerName, u.userId
         FROM Trips t
         JOIN TripTypes tt ON t.tripTypeId = tt.id
         JOIN Users u ON t.userId = u.userId
@@ -192,14 +205,12 @@ async function getTripRequest(tripId, userId) {
 // Get user's sent trip requests
 async function getUserTripRequests(userId) {
     return await db.all(`
-        SELECT tr.*, t.tripName, t.location, t.startDate, t.endDate,
-               u.userId as ownerId, u.userName as ownerName, 
-               tt.name as tripType,
-               tr.message as requestMessage
+        SELECT tr.*, t.*, u.userName, 
+               tr.message as requestMessage,
+               tr.requestDate
         FROM TripRequests tr
         JOIN Trips t ON tr.tripId = t.tripId
         JOIN Users u ON t.userId = u.userId
-        JOIN TripTypes tt ON t.tripTypeId = tt.id
         WHERE tr.userId = ?
         ORDER BY tr.requestDate DESC
     `, [userId]);

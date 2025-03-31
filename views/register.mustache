@@ -3,43 +3,133 @@
 
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title mb-4">Register</h2>
 
-            <h2>Register</h2>
+                    {{#error}}
+                    <div class="alert alert-danger">{{error}}</div>
+                    {{/error}}
 
-            {{#error}}
-            <div class="alert alert-danger">{{error}}</div>
-            {{/error}}
+                    <form id="registrationForm" action="/auth/register" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="userName" class="form-label">Full Name</label>
+                            <div class="input-group has-validation">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="userName" 
+                                       name="userName" 
+                                       required
+                                       minlength="2"
+                                       pattern="[A-Za-z\s]+"
+                                       title="Name should only contain letters and spaces">
+                                <div class="invalid-feedback">
+                                    Please enter a valid name (at least 2 characters, letters only).
+                                </div>
+                            </div>
+                        </div>
 
-            <form id="registrationForm" action="/auth/register" method="POST">
-                <div class="form-group mb-3">
-                    <label for="userName">Full Name</label>
-                    <input type="text" class="form-control" id="userName" name="userName" required>
-                </div>
-                <div class="form-group"mb-3>
-                    <label for="email">Email</label>
-                    <input type="text" class="form-control" id="email" name="email" required>
-                </div>
-                <div class="form-group"mb-3>
-                    <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
-                <div class="form-group"mb-3>
-                    <label for="address">Address</label>
-                    <input type="text" class="form-control" id="address" name="address" required>
-                    <label id="addressError" class="form-check-label is-invalid" for="address">Address </label>
-                </div>
-                <div class="form-group"mb-3>
-                    <label for="bio">Short Bio</label>
-                    <textarea class="form-control" id="bio" name="bio"></textarea>
-                </div>
-                <button type="submit" class="btn btn-success">Register</button>
-            </form>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <div class="input-group has-validation">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="email" 
+                                       name="email" 
+                                       required
+                                       pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+                                <div class="invalid-feedback">
+                                    Please enter a valid email address.
+                                </div>
+                            </div>
+                        </div>
 
-            <hr>
-            <p>Already have an account? <a href="/auth/login">Login here</a></p>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group has-validation">
+                                <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password" 
+                                       name="password" 
+                                       required
+                                       minlength="8"
+                                       pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                       title="Must contain at least one number, one uppercase and lowercase letter, and at least 8 characters">
+                                <div class="invalid-feedback">
+                                    Password must be at least 8 characters long and include uppercase, lowercase, and numbers.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <div class="input-group has-validation">
+                                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="address" 
+                                       name="address" 
+                                       required
+                                       minlength="5">
+                                <div class="invalid-feedback">
+                                    Please enter a valid address (at least 5 characters).
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="bio" class="form-label">Short Bio</label>
+                            <div class="input-group has-validation">
+                                <span class="input-group-text"><i class="bi bi-chat-quote"></i></span>
+                                <textarea class="form-control" 
+                                          id="bio" 
+                                          name="bio" 
+                                          rows="3"
+                                          maxlength="200"></textarea>
+                                <div class="invalid-feedback">
+                                    Bio cannot exceed 200 characters.
+                                </div>
+                            </div>
+                            <div class="form-text">Tell us a bit about yourself (optional, max 200 characters)</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Register</button>
+                    </form>
+
+                    <hr class="my-4">
+                    <p class="text-center mb-0">
+                        Already have an account? 
+                        <a href="/auth/login" class="text-decoration-none">Login here</a>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+// Form validation script
+(function () {
+    'use strict'
+
+    const forms = document.querySelectorAll('.needs-validation')
+
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
 
 {{> footer}}

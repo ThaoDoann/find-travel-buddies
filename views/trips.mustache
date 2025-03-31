@@ -6,7 +6,12 @@
     <h2>Plan Your Group Trip</h2>
 
     <!-- Add New Trip Button -->
-    <button class="btn btn-primary mt-3" id="addNewTripBtn">Add New Trip</button>
+
+    <div class="mb-4 text-end">
+        <button class="btn btn-outline-secondary" id="addNewTripBtn">
+            <i class="bi bi-pencil"></i> Add New Trip
+        </button>
+    </div>
 
     <!-- New Trip Form (Initially hidden) -->
     <div id="newTripForm" class="card card-body bg-light mt-4" style="display: none;">
@@ -114,8 +119,6 @@
                                 <p class="mb-0">
                                     <small class="text-muted">
                                         <i class="bi bi-geo-alt"></i> {{location}}
-                                        <span class="mx-2">|</span>
-                                        <span class="badge bg-info">{{tripType}}</span>
                                     </small>
                                 </p>
                             </div>
@@ -174,7 +177,7 @@
     <!-- My Trip Requests Section -->
     <div class="mt-4">
         <h4>My Trip Requests</h4>
-        {{#sentRequests}}
+        {{#tripRequests}}
             <div class="card mb-3">
                 <div class="card-header py-3">
                     <div class="d-flex align-items-center">
@@ -192,8 +195,8 @@
                             <p class="mb-0">
                                 <small class="text-muted">
                                     <i class="bi bi-person"></i> 
-                                    <a href="/user/{{ownerId}}/profile" class="text-decoration-none user-link">
-                                        {{ownerName}}
+                                    <a href="/user/{{userId}}/profile" class="text-decoration-none user-link">
+                                        {{userName}}
                                     </a>
                                     <span class="mx-2">|</span>
                                     <i class="bi bi-geo-alt"></i> {{location}}
@@ -258,10 +261,10 @@
                     </div>
                 </div>
             </div>
-        {{/sentRequests}}
-        {{^sentRequests}}
+        {{/tripRequests}}
+        {{^tripRequests}}
             <p class="text-muted">No trip requests sent.</p>
-        {{/sentRequests}}
+        {{/tripRequests}}
     </div>
 </div>
 
@@ -344,50 +347,5 @@
     })();
 
 </script>
-
-{{! <style>
-/* Update the details button styles */
-.details-btn {
-    padding: 0.25rem 0.5rem;
-    transition: transform 0.2s ease-in-out;
-}
-
-.details-btn:hover {
-    background-color: #f8f9fa;
-}
-
-.details-btn i {
-    transition: transform 0.2s ease-in-out;
-}
-
-.details-btn[aria-expanded="true"] i {
-    transform: rotate(180deg);
-}
-
-/* User link styles */
-.user-link {
-    color: #212529;
-    transition: all 0.2s ease-in-out;
-}
-
-.user-link:hover {
-    color: #0d6efd;
-    text-decoration: underline !important;
-}
-
-.user-link .bi {
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-}
-
-.user-link:hover .bi {
-    opacity: 1;
-}
-
-/* Card header hover effect */
-.card-header {
-    background-color: #f8f9fa;
-}
-</style> }}
 
 {{> footer}}

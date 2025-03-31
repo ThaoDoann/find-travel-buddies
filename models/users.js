@@ -51,72 +51,13 @@ async function searchUsers(query) {
     `, [`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`]);
 }
 
-// // Get user by id with connection status
-// async function getUserByIdWithConnection(userId, currentUserId) {
-//     const user = await db.get(`
-//         SELECT u.*, 
-//             CASE 
-//                 WHEN c.status IS NULL THEN 'Not Connected'
-//                 ELSE c.status
-//             END as connectionStatus
-//         FROM Users u
-//         LEFT JOIN Connections c ON 
-//             (c.requester_id = ? AND c.recipient_id = u.userId) OR
-//             (c.requester_id = u.userId AND c.recipient_id = ?)
-//         WHERE u.userId = ?
-//     `, [currentUserId, currentUserId, userId]);
 
-//     if (user) {
-//         user.canConnect = user.connectionStatus === 'Not Connected';
-//     }
 
-//     return user;
-// }
-
-// Create connection request
-async function createConnectionRequest(requesterId, recipientId) {
-    return await db.run(`
-        INSERT INTO Connections (requester_id, recipient_id, status)
-        VALUES (?, ?, 'Pending')
-    `, [requesterId, recipientId]);
-}
-
-// Update connection status
-async function updateConnectionStatus(connectionId, status) {
-    return await db.run(`
-        UPDATE Connections 
-        SET status = ? 
-        WHERE id = ?
-    `, [status, connectionId]);
-}
-
-// Get user's connections
-async function getUserConnections(userId) {
-    return await db.all(`
-        SELECT u.*, c.status as connectionStatus, c.id as connectionId
-        FROM Users u
-        JOIN Connections c ON 
-            (c.requester_id = ? AND c.recipient_id = u.userId) OR
-            (c.requester_id = u.userId AND c.recipient_id = ?)
-        WHERE c.status = 'Accepted'
-        ORDER BY u.userName ASC
-    `, [userId, userId]);
-}
-
-// Get pending connection requests
-async function getPendingConnectionRequests(userId) {
-    return await db.all(`
-        SELECT u.*, c.id as connectionId
-        FROM Users u
-        JOIN Connections c ON c.requester_id = u.userId
-        WHERE c.recipient_id = ? AND c.status = 'Pending'
-        ORDER BY c.created_at DESC
-    `, [userId]);
-}
 
 // Authenticate user (login)
-async function authenticateUser(email, password) {
-    return await db.all("SELECT * FROM Users WHERE UPPER(email) = UPPER(?) AND password = ?", [email, password]);
+async function authenticateUser(email) {
+    // Only get the user by email, we'll check password separately
+    return await db.get("SELECT * FROM Users WHERE UPPER(email) = UPPER(?)", [email]);
 }
 
 // Get User by id
@@ -136,21 +77,21 @@ async function createUser(userName, email, password, address, bio) {
 }
 
 // Update user information 
-async function updateUser(userId, userName, email, password, address, bio, avatarBuffer) {
-    if (avatarBuffer) {
-        return await db.run(`
-            UPDATE users 
-            SET userName = ?, email = ?, address = ?, bio = ?, avatar = ? 
-            WHERE userId = ?
-        `, [userName, email, password, address, bio, avatarBuffer, userId]);
+async function updateUser(userId, userName, email, address, bio) {
+    console.log(userId, userName, email, address, bio);
+    if (email == null && address == null) {
+        return await db.run(`UPDATE users SET userName = ?, bio = ? WHERE userId = ?`, [userName, email, address, bio, userId]);
     } else {
-        return await db.run(`
-            UPDATE users 
-            SET userName = ?, email = ?, address = ?, bio = ? 
-            WHERE userId = ?
-        `, [userName, email, password, address, bio, userId]);
+        return await db.run(`UPDATE users SET userName = ?, email = ?, address = ?, bio = ? WHERE userId = ?`, [userName, email, address, bio, userId]);
     }
 }
+
+async function updateUserAvatar(userId, avatarPath) {
+    
+    return await db.run(`UPDATE users SET avatarPath = ? WHERE userId = ?`, [avatarPath, userId]);
+    
+}
+
 
 // // Update the user's avatar
 // async function updateAvatar(userId, avatarBuffer) {
@@ -167,15 +108,9 @@ async function updateUser(userId, userName, email, password, address, bio, avata
 module.exports = {
     getAllUsers,
     searchUsers,
-    createConnectionRequest,
-    updateConnectionStatus,
-    getUserConnections,
-    getPendingConnectionRequests,
     authenticateUser,
     getUserById,
     getUserByEmail,
     createUser,
     updateUser
-    // updateAvatar,
-    // updateAddress
 };

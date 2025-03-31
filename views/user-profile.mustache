@@ -2,143 +2,216 @@
 {{> navigation}}
 
 <div class="container mt-4">
-    <!-- Back Button -->
-    <div class="mb-4">
-        <a href="javascript:history.back()" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-left"></i> Back
-        </a>
-    </div>
-
     <div class="row">
         <!-- User Profile Section -->
-        <div class="col-md-4">
+        <div class="col-lg-4 col-md-5 mb-4">
             <div class="card shadow-sm">
                 <div class="card-body text-center">
-                    {{#user.avatar}}
-                        <img src="data:image/png;base64,{{user.avatar}}" 
-                             class="rounded-circle mb-3" 
-                             alt="User Avatar" 
-                             width="150" 
-                             height="150">
-                    {{/user.avatar}}
-                    {{^user.avatar}}
-                        <img src="/images/default-avatar.png" 
-                             class="rounded-circle mb-3" 
-                             alt="Default Avatar" 
-                             width="150" 
-                             height="150">
-                    {{/user.avatar}}
-                    
-                    <h3 class="card-title">{{user.userName}}</h3>
-                    
-                    <div class="text-start mt-4">
-                        <p><i class="bi bi-envelope"></i> <strong>Email:</strong> {{user.email}}</p>
-                        <p><i class="bi bi-geo-alt"></i> <strong>Location:</strong> {{user.address}}</p>
-                        <p><i class="bi bi-person-lines-fill"></i> <strong>Bio:</strong></p>
-                        <p class="text-muted">{{user.bio}}</p>
+                    <!-- Avatar with upload option -->
+                    <div class="position-relative mb-4 d-inline-block">
+                        {{#user.avatar}}
+                            <img src="{{user.avatar}}" 
+                                 class="rounded-circle mb-3" 
+                                 alt="User Avatar" 
+                                 width="150" 
+                                 height="150"
+                                 id="currentAvatar">
+                        {{/user.avatar}}
+                        {{^user.avatar}}
+                            <img src="/images/default-avatar.png" 
+                                 class="rounded-circle mb-3" 
+                                 alt="Default Avatar" 
+                                 width="150" 
+                                 height="150"
+                                 id="currentAvatar">
+                        {{/user.avatar}}
+                        
+                        <!-- Upload button -->
+                        <form id="avatarForm" action="/user/{{user.userId}}/update-avatar" method="POST" enctype="multipart/form-data">
+                            <input type="file" 
+                                   id="avatarUpload" 
+                                   name="avatar" 
+                                   accept="image/*" 
+                                   style="display: none;"
+                                   onchange="updateAvatarPreview(this)">
+                             
+                            {{#user.isCurrentUser}}
+                            <button type="button" class="select-avartar-btn btn btn-sm btn-primary position-absolute bottom-0 end-0" 
+                                    onclick="document.getElementById('avatarUpload').click()">
+                                <i class="bi bi-camera"></i>
+                            </button>
+                            <span id="fileName" class="ms-2" style="display: none;"></span>
+                            {{/user.isCurrentUser}}
+                        </form>
                     </div>
+
+                    <h4 class="mb-0">{{user.userName}}</h4>
+                    {{#user.isCurrentUser}}
+                        <p class="text-muted">{{user.email}}</p>
+                        <p><i class="bi bi-geo-alt"></i> {{user.address}}</p>
+                    {{/user.isCurrentUser}}
                 </div>
             </div>
+            {{#user.isCurrentUser}}
+            <div class="card shadow-sm mt-4">
+                <div class="">
+                    
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="/trips" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-card-list"></i> My Trips
+                            </a>
+                        </li>
+                        <!-- Add more navigation links here if needed -->
+                    </ul>
+                </div>
+            </div>
+            {{/user.isCurrentUser}}
         </div>
 
-        <!-- Public Trips Section -->
-        <div class="col-md-8">
+        <!-- Edit Profile Form -->
+        <div class="col-lg-8 col-md-7">
             <div class="card shadow-sm">
-                <div class="card-header">
-                    <h4 class="mb-0">Public Trips</h4>
-                </div>
                 <div class="card-body">
-                    {{#publicTrips}}
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h5 class="card-title">{{tripName}}</h5>
-                                        <p class="card-text">
-                                            <i class="bi bi-geo-alt"></i> {{location}}<br>
-                                            <i class="bi bi-calendar"></i> {{startDate}} - {{endDate}}<br>
-                                            <i class="bi bi-people"></i> {{companionsCount}}/{{maxCompanions}} companions
-                                        </p>
-                                        <span class="badge bg-info">{{tripType}}</span>
-                                        {{#isPlanned}}
-                                            <span class="badge bg-primary">Planned</span>
-                                        {{/isPlanned}}
-                                    </div>
-                                    <div class="d-flex flex-column align-items-end">
-                                        {{#alreadyRequested}}
-                                            <span class="badge mb-2
-                                                {{#isPending}}bg-warning{{/isPending}}
-                                                {{#isApproved}}bg-success{{/isApproved}}
-                                                {{#isRejected}}bg-danger{{/isRejected}}">
-                                                {{status}}
-                                            </span>
-                                            {{#isPending}}
-                                                <form method="POST" action="/trips/request/{{requestId}}/cancel">
-                                                    <button type="submit" class="btn btn-warning btn-sm">
-                                                        Cancel Request
-                                                    </button>
-                                                </form>
-                                            {{/isPending}}
-                                        {{/alreadyRequested}}
-                                        {{^alreadyRequested}}
-                                            {{#isPlanned}}
-                                                {{#hasRoomForCompanions}}
-                                                    <button class="btn btn-primary btn-sm" 
-                                                            onclick="showJoinTripModal({{tripId}})">
-                                                        Request to Join
-                                                    </button>
-                                                {{/hasRoomForCompanions}}
-                                                {{^hasRoomForCompanions}}
-                                                    <button class="btn btn-secondary btn-sm" disabled>
-                                                        Trip Full
-                                                    </button>
-                                                {{/hasRoomForCompanions}}
-                                            {{/isPlanned}}
-                                        {{/alreadyRequested}}
-                                    </div>
-                                </div>
+                    <h4 class="card-title mb-4">Profile Information</h4>
+                    
+                    <form id="profileForm" action="/user/{{user.userId}}/update-info" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="userName" class="form-label">Full Name</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="userName" 
+                                   name="userName" 
+                                   value="{{user.userName}}"
+                                   required 
+                                   readonly>
+                            <div class="invalid-feedback">
+                                Please enter your full name.
                             </div>
                         </div>
-                    {{/publicTrips}}
-                    {{^publicTrips}}
-                        <p class="text-muted">No public trips available.</p>
-                    {{/publicTrips}}
+
+                        {{#user.isCurrentUser}}
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email" 
+                                   value="{{user.email}}"
+                                   required 
+                                   readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="address" 
+                                   name="address" 
+                                   value="{{user.address}}"
+                                   required 
+                                   readonly>
+                            <div class="invalid-feedback">
+                                Please enter your address.
+                            </div>
+                        </div>
+                        {{/user.isCurrentUser}}
+
+                        <div class="mb-4">
+                            <label for="bio" class="form-label">Bio</label>
+                            <textarea class="form-control" 
+                                      id="bio" 
+                                      name="bio" 
+                                      rows="3" readonly>{{user.bio}}</textarea>
+                        </div>
+
+                        <div class="text-end" style="display: none;" id="editButtons">
+                            <button type="button" class="btn btn-secondary me-2" id="cancelEditBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                    {{#user.isCurrentUser}}
+                        <button class="btn btn-primary" id="editInfoBtn">Edit Info</button>
+                    {{/user.isCurrentUser}}
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Join Trip Modal -->
-<div class="modal fade" id="joinTripModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Request to Join Trip</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="joinTripForm" action="/trips/join" method="POST">
-                <div class="modal-body">
-                    <input type="hidden" id="tripId" name="tripId">
-                    <div class="mb-3">
-                        <label for="message" class="form-label">Message to Trip Owner</label>
-                        <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+            <!-- User's Public Trips Section -->
+            {{^user.isCurrentUser}}
+        
+                <!-- User's Trips Section -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Upcoming Trips</h4>
+                        {{#trips.length}}
+                            <ul class="list-group">
+                                {{#trips}}
+                                    <li class="list-group-item">
+                                        <h5>{{tripName}}</h5>
+                                        <p><strong>Location:</strong> {{location}}</p>
+                                        <p><strong>Dates:</strong> {{startDate}} to {{endDate}}</p>
+                                        <p><strong>Budget:</strong> ${{budget}}</p>
+                                    </li>
+                                {{/trips}}
+                            </ul>
+                        {{/trips.length}}
+                        {{^trips.length}}
+                            <p>No trips found.</p>
+                        {{/trips.length}}
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Send Request</button>
-                </div>
-            </form>
+            {{/user.isCurrentUser}}
+            <div class="text-end">
+                <button class="btn btn-secondary" onclick="window.history.back();">Back</button>
+            </div>
+
         </div>
     </div>
 </div>
 
+
 <script>
-function showJoinTripModal(tripId) {
-    document.getElementById('tripId').value = tripId;
-    new bootstrap.Modal(document.getElementById('joinTripModal')).show();
-}
+document.getElementById('editInfoBtn').addEventListener('click', function() {
+    const formInputs = document.querySelectorAll('#profileForm input, #profileForm textarea');
+    formInputs.forEach(input => {
+        input.removeAttribute('readonly');
+    });
+    document.getElementById('editButtons').style.display = 'block';
+    this.style.display = 'none'; // Hide the edit button
+});
+
+// Cancel button functionality
+document.getElementById('cancelEditBtn').addEventListener('click', function() {
+    const formInputs = document.querySelectorAll('#profileForm input, #profileForm textarea');
+    formInputs.forEach(input => {
+        input.setAttribute('readonly', true); // Set fields back to readonly
+    });
+    document.getElementById('editButtons').style.display = 'none'; // Hide the edit buttons
+    document.getElementById('editInfoBtn').style.display = 'block'; // Show the edit button again
+});
+
+document.getElementById('avatarUpload').addEventListener('change', function() {
+    const formData = new FormData();
+    formData.append('avatar', this.files[0]);
+
+    fetch(`/user/{{user.userId}}/update-avatar`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Failed to update avatar.');
+        }
+    })
+    .then(data => {
+        document.getElementById('currentAvatar').src = data.avatarPath; // Update the avatar image
+        document.getElementById('fileName').textContent = this.files[0].name; // Show the file name
+        document.getElementById('fileName').style.display = 'inline'; // Show the file name
+    })
+    .catch(error => console.error('Error:', error));
+});
 </script>
 
 {{> footer}} 

@@ -4,14 +4,15 @@
 <div class="container mt-4">
     <!-- Back Button -->
     <div class="mb-4 d-flex justify-content-between">
-        <a href="/trips" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-left"></i> Back to All Trips
-        </a>
-        {{#trip.isOwner}}
+        <button class="btn btn-outline-primary" onclick="window.history.back();">
+            <i class="bi bi-arrow-left"></i>Back
+        </button>
+
+        {{#trip.isOrganizer}}
             <button class="btn btn-outline-secondary" id="editTripBtn">
                 <i class="bi bi-pencil"></i> Edit Trip
             </button>
-        {{/trip.isOwner}}
+        {{/trip.isOrganizer}}
     </div>
 
     <!-- Trip Details Card -->
@@ -34,39 +35,45 @@
                 <!-- Basic details visible to all -->
                 <div class="row">
                     <div class="col-md-6">
-                        <p><i class="bi bi-geo-alt"></i> <strong>Location:</strong> {{trip.location}}</p>
-                        <p><i class="bi bi-calendar"></i> <strong>Dates:</strong> {{trip.startDate}} - {{trip.endDate}}</p>
+                        <p><i class="bi bi-geo-alt"></i> <strong>Location:</strong> <input type="text" class="form-control" id="location" name="location" value="{{trip.location}}" required readonly></p>
+                        <p><i class="bi bi-calendar"></i> <strong>Dates:</strong> <input type="date" class="form-control" id="startDate" name="startDate" value="{{trip.startDate}}" required readonly> - <input type="date" class="form-control" id="endDate" name="endDate" value="{{trip.endDate}}" required readonly></p>
                         <p><i class="bi bi-tag"></i> <strong>Type:</strong> {{trip.tripType}}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><i class="bi bi-currency-dollar"></i> <strong>Budget:</strong> ${{trip.budget}}</p>
-                        <p><i class="bi bi-people"></i> <strong>Companions:</strong> {{trip.companionsCount}}/{{trip.maxCompanions}}</p>
-                        {{#trip.isOwner}}
+                        <p><i class="bi bi-currency-dollar"></i> <strong>Budget:</strong> <input type="number" class="form-control" id="budget" name="budget" value="{{trip.budget}}" required readonly></p>
+                        <p><i class="bi bi-people"></i> <strong>Companions:</strong> (current: {{trip.companionsCount}})
+                        <input type="number" class="form-control" id="maxCompanions" name="maxCompanions" value="{{trip.maxCompanions}}" required readonly>
+                        </p>
+                        
+                        {{#trip.isOrganizer}}
                             <p><i class="bi bi-globe"></i> <strong>Visibility:</strong> 
-                                {{#trip.isPublic}}Public{{/trip.isPublic}}
-                                {{^trip.isPublic}}Private{{/trip.isPublic}}
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="isPublic" name="isPublic" {{#trip.isPublic}}checked{{/trip.isPublic}} disabled>
+                                    <label class="form-check-label" for="isPublic">Public Trip</label>
+                                    <small class="form-text text-muted d-block">Public trips are visible to all users. Private trips are only visible to you.</small>
+                                </div>
                             </p>
-                        {{/trip.isOwner}}
+                        {{/trip.isOrganizer}}
                     </div>
                 </div>
 
                 <div class="mt-3">
                     <p><i class="bi bi-chat-dots"></i> <strong>Description:</strong></p>
-                    <p class="ms-4">{{trip.description}}</p>
+                    <textarea class="form-control" id="description" name="description" rows="3" readonly>{{trip.description}}</textarea>
                 </div>
 
-                {{#trip.isOwner}}
+                {{#trip.isOrganizer}}
                     <!-- Edit buttons only visible to owner -->
                     <div class="mt-3 text-end" style="display: none;" id="editButtons">
                         <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
-                {{/trip.isOwner}}
+                {{/trip.isOrganizer}}
             </form>
         </div>
     </div>
 
-    {{#trip.isOwner}}
+    {{#trip.isOrganizer}}
         <!-- Trip Requests Section - Only visible to owner -->
         <div class="row">
             <!-- Pending Requests -->
@@ -89,11 +96,12 @@
                                             {{/avatar}}
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0">
-                                                    <a href="/user/profile/{{userId}}" class="text-decoration-none user-link">
+                                                    <a href="/user/{{userId}}/profile" class="text-decoration-none user-link">
                                                         {{userName}}
                                                         <i class="bi bi-box-arrow-up-right text-muted ms-1" style="font-size: 0.75em;"></i>
                                                     </a>
                                                 </h6>
+                                                <small class="text-muted">{{requestDate}}</small>
                                             </div>
                                             <form method="post" action="/trips/{{trip.tripId}}/{{requestId}}/action" class="d-flex gap-2">
                                                 {{#trip.hasRoomForCompanions}}
@@ -130,11 +138,12 @@
                                             {{/avatar}}
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0">
-                                                    <a href="/users/profile/{{userId}}" class="text-decoration-none user-link">
+                                                    <a href="/user/{{userId}}/profile" class="text-decoration-none user-link">
                                                         {{userName}}
                                                         <i class="bi bi-box-arrow-up-right text-muted ms-1" style="font-size: 0.75em;"></i>
                                                     </a>
                                                 </h6>
+                                                <small class="text-muted">{{requestDate}}</small>
                                             </div>
                                             <form method="post" action="/trips/{{trip.tripId}}/{{requestId}}/action">
                                                 <button type="submit" name="action" value="Pending" class="btn btn-warning btn-sm">Revert to Pending</button>
@@ -168,11 +177,12 @@
                                             {{/avatar}}
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0">
-                                                    <a href="/user/profile/{{userId}}" class="text-decoration-none user-link">
+                                                    <a href="/user/{{userId}}/profile" class="text-decoration-none user-link">
                                                         {{userName}}
                                                         <i class="bi bi-box-arrow-up-right text-muted ms-1" style="font-size: 0.75em;"></i>
                                                     </a>
                                                 </h6>
+                                                <small class="text-muted">{{requestDate}}</small>
                                             </div>
                                             <form method="post" action="/trips/{{trip.tripId}}/{{requestId}}/action">
                                                 <button type="submit" name="action" value="Pending" class="btn btn-warning btn-sm">Revert to Pending</button>
@@ -186,9 +196,9 @@
                 </div>
             </div>
         </div>
-    {{/trip.isOwner}}
+    {{/trip.isOrganizer}}
 
-    {{^trip.isOwner}}
+    {{^trip.isOrganizer}}
         <!-- Join Request Status - Only visible to non-owners -->
         <div class="mt-3">
             {{#trip.userRequestStatus}}
@@ -197,11 +207,6 @@
                     {{#trip.isApproved}}alert-success{{/trip.isApproved}}
                     {{#trip.isRejected}}alert-danger{{/trip.isRejected}}">
                     Your request status: <strong>{{trip.userRequestStatus}}</strong>
-                    {{#trip.isPending}}
-                        <form method="POST" action="/trips/request/{{trip.requestId}}/cancel" class="d-inline ms-2">
-                            <button type="submit" class="btn btn-warning btn-sm">Cancel Request</button>
-                        </form>
-                    {{/trip.isPending}}
                 </div>
             {{/trip.userRequestStatus}}
             {{^trip.userRequestStatus}}
@@ -217,7 +222,7 @@
                 {{/trip.hasRoomForCompanions}}
             {{/trip.userRequestStatus}}
         </div>
-    {{/trip.isOwner}}
+    {{/trip.isOrganizer}}
 </div>
 
 <script>
@@ -287,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Validate max companions
         if (newMaxCompanions < currentCompanions) {
-            maxCompanionsInput.setCustomValidity('Max companions cannot be less than current companions');
+            maxCompanionsInput.setCustomValidity('Max companions cannot be less than current companions count');
             event.preventDefault();
         } else {
             maxCompanionsInput.setCustomValidity('');
