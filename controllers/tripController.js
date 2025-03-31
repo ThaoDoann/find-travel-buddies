@@ -83,18 +83,6 @@ router.get('/:tripId', isAuthenticated, async function(req, res) {
         trip.isOrganizer = trip.userId === userId;
         trip.hasRoomForCompanions = trip.companionsCount < trip.maxCompanions;
 
-        // Get user's request status for this trip if they're not the owner
-        
-
-        // if (!trip.isOrganizer) {
-        //     const userRequest = await TripModel.getTripRequest(tripId, userId);
-        //     if (userRequest) {
-        //         trip.userRequestStatus = userRequest.status;
-        //         trip.isPending = userRequest.status === 'Pending';
-        //         trip.isApproved = userRequest.status === 'Approved';
-        //         trip.isRejected = userRequest.status === 'Rejected';
-        //     }
-        // }
 
         // Only fetch requests if user is the organizer
         let tripRequests = [];
@@ -189,30 +177,16 @@ router.post('/:tripId/update', async function(req, res) {
 // Request to join a trip
 router.post('/join', isAuthenticated, async (req, res) => {
     try {
+
+        console.log("request to join: req.body", req.body);
         const userId = req.session.user.userId;
         const { tripId, message } = req.body;
-
-        // Check if trip exists and has room
-        const trip = await TripModel.getTripById(tripId);
-        if (!trip) {
-            return res.status(404).send('Trip not found');
-        }
-
-        if (trip.companionsCount >= trip.maxCompanions) {
-            return res.status(400).send('Trip is full');
-        }
-
-        // Check if user already has a request for this trip
-        const existingRequest = await TripModel.getTripRequest(tripId, userId);
-        if (existingRequest) {
-            return res.status(400).send('You have already requested to join this trip');
-        }
 
         // Create trip request
         await TripModel.createTripRequest(userId, tripId, message);
 
         // Redirect back to the user's profile page
-        res.redirect(`/user/${trip.userId}/profile`);
+        res.redirect(`/user/${userId}/profile`);
     } catch (error) {
         console.error('Error requesting to join trip:', error);
         res.status(500).send('Error requesting to join trip');

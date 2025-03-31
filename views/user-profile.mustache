@@ -144,16 +144,27 @@
                     <div class="card-body">
                         <h4 class="card-title mb-4">Upcoming Trips</h4>
                         {{#trips.length}}
-                            <ul class="list-group">
+                            <div class="list-group">
                                 {{#trips}}
-                                    <li class="list-group-item">
-                                        <h5>{{tripName}}</h5>
-                                        <p><strong>Location:</strong> {{location}}</p>
-                                        <p><strong>Dates:</strong> {{startDate}} to {{endDate}}</p>
-                                        <p><strong>Budget:</strong> ${{budget}}</p>
-                                    </li>
+                                    {{#isPublic}}
+                                    <div class="list-group-item">
+                                        <h5 class="mb-1">{{tripName}}</h5>
+                                        <p class="mb-1">
+                                            <strong>Location:</strong> {{location}}<br>
+                                            <strong>Dates:</strong> {{startDate}} - {{endDate}}<br>
+                                            <strong>Budget:</strong> ${{budget}}<br>
+                                            <strong>Companions:</strong> {{companionsCount}}/{{maxCompanions}}<br>
+                                            <strong>Status:</strong> {{status}}
+                                        </p>
+                                        {{^isRequestSent}}
+                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinRequestModal" onclick="setTripId({{tripId}})">
+                                            Request to Join
+                                        </button>
+                                        {{/isRequestSent}}
+                                    </div>
+                                    {{/isPublic}}
                                 {{/trips}}
-                            </ul>
+                            </div>
                         {{/trips.length}}
                         {{^trips.length}}
                             <p>No trips found.</p>
@@ -169,8 +180,65 @@
     </div>
 </div>
 
+<!-- Join Request Modal -->
+<div class="modal fade" id="joinRequestModal" tabindex="-1" aria-labelledby="joinRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="joinRequestModalLabel">Request to Join Trip</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="joinRequestForm">
+                    <div class="mb-3">
+                        <label for="requestMessage" class="form-label">Message (optional)</label>
+                        <textarea class="form-control" id="requestMessage" rows="3"></textarea>
+                    </div>
+                    <input type="hidden" id="tripId" name="tripId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="submitJoinRequestBtn">Send Request</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
+let currentTripId;
+
+function setTripId(tripId) {
+    currentTripId = tripId;
+}
+
+document.getElementById('submitJoinRequestBtn').addEventListener('click', function() {
+    const message = document.getElementById('requestMessage').value;
+
+    console.log(message, currentTripId);
+    fetch('/trips/join', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            tripId: currentTripId,
+            message: message
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            location.reload(); // Reload the page to see updated requests
+        } else {
+            alert("Failed to send request. Please try again.");
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("An error occurred. Please try again.");
+    });
+});
+
 document.getElementById('editInfoBtn').addEventListener('click', function() {
     const formInputs = document.querySelectorAll('#profileForm input, #profileForm textarea');
     formInputs.forEach(input => {

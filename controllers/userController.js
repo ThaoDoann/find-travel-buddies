@@ -27,6 +27,7 @@ router.get("/", isAuthenticated, async function (req, res) {
     res.render("user-profile", req.TPL);
 });
 
+
 // View user profile
 router.get('/:userId/profile', isAuthenticated, async (req, res) => {
     try {
@@ -37,18 +38,24 @@ router.get('/:userId/profile', isAuthenticated, async (req, res) => {
         const user = await UsersModel.getUserById(requestedUserId);
 
         // Get public trips
-        if (currentUserId !== requestedUserId) {
-            trips = await TripsModel.getPublicTripsByUserId(requestedUserId);
-        } else {
-            trips = await TripsModel.getTripsByUserId(requestedUserId);
-        }
+        // if (currentUserId !== requestedUserId) {
+        //     trips = await TripsModel.getPublicTripsByUserId(requestedUserId);
+        // } else {
+        //     trips = await TripsModel.getTripsByUserId(requestedUserId);
+        // }
 
-        
+        trips = await TripsModel.getTripsByUserId(requestedUserId);
+
+        // Fetch the current user's trip requests
+        const userRequests = await TripsModel.getUserTripRequests(currentUserId);
+        const userRequestTripIds = userRequests.map(request => request.tripId); // Get trip IDs from requests
+
         
         // Add additional trip info for each trip
         for (let trip of trips) {
 
             trip.isPlanned = trip.status === 'Planned';
+            trip.isRequestSent = userRequestTripIds.includes(trip.tripId); 
             console.log("trip", trip);
             // if (currentUserId !== requestedUserId) {  // Only check requests for other users' trips
             //     const request = await TripsModel.getTripRequest(trip.tripId, currentUserId);
